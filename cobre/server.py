@@ -4,10 +4,10 @@ import cobre.errors
 class Socket(object):
     # addr:port
     def __init__(self, addr):
-        host, port = addr.split(':')
+       #host, port = addr.split(':')
         self._sock = socket.socket(socket.AF_INET)
         try:
-            self._sock.connect((host, int(port)))
+            self._sock.create_connection(addr)
         except socket.error as e:
             self._sock.close()
             raise cobre.errors.ConnectionError(e)
