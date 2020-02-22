@@ -2,18 +2,27 @@ import socket
 import cobre.errors
 
 class Socket(object):
-    # addr:port
-    def __init__(self, addr):
-       #host, port = addr.split(':')
-        self._sock = socket.socket(socket.AF_INET)
+    def __init__(self):
         try:
-            self._sock.create_connection(addr)
+            self._sock = socket.socket(socket.AF_INET)
         except socket.error as e:
-            self._sock.close()
             raise cobre.errors.ConnectionError(e)
 
     def __del__(self):
         self._sock.close()
 
-    def sendmsg(self, msg):
-        self._sock
+    def send_bytes(self, buf):
+        try:
+            self._sock.send(buf)
+        except (socket.error, BrokenPipeError) as e:
+            raise cobre.errors.SendError(e)
+
+    def recv_bytes(self, buf=4096):
+        t = type(buf)
+        try:
+            if t == bytes or t == bytearray:
+                self._sock.recv_into(buf)
+            else:
+                self._sock.recv(buf)
+        except (socket.error, BrokenPipeError) as e:
+            raise cobre.errors.RecvError(e)
