@@ -6,7 +6,7 @@ class Socket(object):
         try:
             self._sock = socket.socket(socket.AF_INET)
         except socket.error as e:
-            raise cobre.errors.ConnectionError(e)
+            raise cobre.errors.CreationError(e)
 
     def __del__(self):
         self._sock.close()
@@ -28,6 +28,7 @@ class Socket(object):
             raise cobre.errors.RecvError(e)
 
 # TODO: finish these two classes
+# https://docs.python.org/3/library/socket.html
 class Client(Socket):
     def __init__(self, addr):
         super().__init__()
