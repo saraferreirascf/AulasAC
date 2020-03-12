@@ -3,6 +3,7 @@ import socket
 from _thread import *
 import threading 
 
+
 def threaded(c,addr):
     while True:
         msg=c.recv(1024)
