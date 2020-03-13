@@ -3,15 +3,18 @@ from Crypto.Cipher import AES
 from Crypto import Random
 from Crypto.Util import Counter
 import sys
+import random
+import string
 
 
 def keygen(keyfile):
     #key=bytearray(b"very nice key")
-    key="12345"
-    pad = '# constant pad for short keys ##'
-    keye = (key + pad)[:32]
+    key = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+    #key="12345"
+    #pad = '# constant pad for short keys ##'
+    #keye = (key + pad)[:32]
     f= open(keyfile,"w+")
-    f.write(keye)
+    f.write(key)
     f.close()
 
 
