@@ -1,0 +1,17 @@
+//Especificaçao funcional
+
+Na nossa aplicação será possivel criar uma conta bancária bem como, posteriormente, editar alguma informação tal como, o numero de telefone e morada. 
+Uma outra funcionalidade será a transferência de dinheiro de uma conta para outra.
+Será tambem possivel a partir de uma caixa multibanco, consultar o saldo, depositar dinheiro, ou levantar.
+
+//Atores
+
+Diagramas de casos de uso.
+
+1- Levantar dinheiro em que o ator é o cliente e ele tem de introduzir o pin, tem de se validar o utilizador, pede dinheiro e a caixa multibanco dá.
+
+Caixa multibanco é ator secundario?
+
+//Arquitetura
+
+//Fluxo e estrutura de dados
