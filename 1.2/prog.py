@@ -9,7 +9,7 @@ import string
 
 def keygen(keyfile):
     #key=bytearray(b"very nice key")
-    key = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+    KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
     #key="12345"
     #pad = '# constant pad for short keys ##'
     #keye = (key + pad)[:32]
