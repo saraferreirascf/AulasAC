@@ -3,64 +3,53 @@ from Crypto.Cipher import AES
 from Crypto import Random
 from Crypto.Util import Counter
 import sys
-import random
-import string
 
+RAND = Random.new()
 
 def keygen(keyfile):
     #key=bytearray(b"very nice key")
-    KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+    KEY = RAND.read(32)
     #key="12345"
     #pad = '# constant pad for short keys ##'
     #keye = (key + pad)[:32]
-    f= open(keyfile,"w+")
-    f.write(key)
-    f.close()
+    with open(keyfile, "wb") as f:
+        f.write(KEY)
 
 
 ###################### ENCRYPT ##############################
 
 def enc(keyfile,infile,outfile):
     #print("Entrei na funcao de enc ehehe")
-    random_generator = Random.new()
-    IV = random_generator.read(8)
+    IV = RAND.read(8)
     #print("IV=",IV)
-    fi= open("IV.txt","wb")
-    fi.write(IV)
-    fi.close()
+    with open("IV.txt", "wb") as fi:
+        fi.write(IV)
 
-    f= open(keyfile,"r")
-    keye=f.read()
-    f.close()
+    with open(keyfile, "rb") as f:
+        keye=f.read()
 
     ctr_e = Counter.new(64, prefix=IV)
     encryptor = AES.new(keye, AES.MODE_CTR, counter=ctr_e)
 
-    fp = open(infile, "r")
-    plaintext = fp.read()
-    #print(plaintext)
-    fp.close()
+    with open(infile, "rb") as fp:
+        plaintext = fp.read()
 
     ciphertext = encryptor.encrypt(plaintext)
 
-
-    fc= open(outfile,"wb")
-    fc.write(ciphertext)
-    fc.close()
+    with open(outfile,"wb") as fc:
+        fc.write(ciphertext)
 
 ###################### DECRYPT ##############################
 
 
 def dec(keyfile,infile,outfile):
-    print("Entrei na funcao de dec ehehe")
+    #print("Entrei na funcao de dec ehehe")
     
-    f= open(keyfile,"r")
-    keyd=f.read()
-    f.close()
+    with open(keyfile,"rb") as f:
+        keyd=f.read()
     #keyd = (key + pad)[:32]
-    fi= open("IV.txt","rb")
-    IV=fi.read()
-    fi.close()
+    with open("IV.txt","rb") as fi:
+        IV=fi.read()
     #print("IV=",IV)
     #restarts from the beginning
 
@@ -68,21 +57,27 @@ def dec(keyfile,infile,outfile):
 
     # Create decryptor, then decrypt and print decoded text
     decryptor = AES.new(keyd, AES.MODE_CTR, counter=ctr_d)
-    fp = open(infile, "rb")
-    ciphertext = fp.read()
-    fp.close()
+    with open(infile, "rb") as fp:
+        ciphertext = fp.read()
     #print("Ciphertext do ficheiro:",ciphertext)
     decoded_text = decryptor.decrypt(ciphertext)
     #print(decoded_text.decode("utf-8"))
-    fc= open(outfile,"w")
-    fc.write(decoded_text.decode("utf-8"))
-    fc.close()
+    with open(outfile,"wb") as fc:
+        fc.write(decoded_text)
 
+def usage():
+    print('Usage: python3 prog.py -genkey <outfile>')
+    print('                       -enc <keyfile> <infile> <outfile>')
+    print('                       -dec <keyfile> <infile> <outfile>')
 
-if sys.argv[1]=="-genkey":
-	keygen(sys.argv[2])
-if sys.argv[1]=="-enc":
-	enc(sys.argv[2],sys.argv[3],sys.argv[4])
-if sys.argv[1]=="-dec":
-	dec(sys.argv[2],sys.argv[3],sys.argv[4])
-
+if __name__ == '__main__':
+    if len(sys.argv) < 2:
+        usage()
+    elif sys.argv[1]=="-genkey":
+        keygen(sys.argv[2])
+    elif sys.argv[1]=="-enc":
+        enc(sys.argv[2],sys.argv[3],sys.argv[4])
+    elif sys.argv[1]=="-dec":
+        dec(sys.argv[2],sys.argv[3],sys.argv[4])
+    else:
+        usage()
