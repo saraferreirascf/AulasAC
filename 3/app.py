@@ -1,6 +1,9 @@
 import sys
 
-if sys.argv[1]=="Client":
-	exec(open('client.py').read())
-if sys.argv[1]=="Server":
-	exec(open('server.py').read())
+import client
+import server
+
+if sys.argv[1]=="Client_RC4":
+    client.RC4().run()
+elif sys.argv[1]=="Server_RC4":
+    server.RC4().run()
