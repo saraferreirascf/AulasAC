@@ -13,15 +13,22 @@ class Client(object):
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
+            self.send_iv(s)
             while True:
                 msg=sys.stdin.buffer.readline()[:-1]
                 if msg == b"exit":
                     s.close()
                     break
                 else:
-                    cryptogram=self.enc(msg)
+                    cryptogram=self.enc(self.iv,msg)
                     s.sendall(cryptogram)
 
 class RC4(Client):
-    def enc(self,p):
+    def __init__(self):
+        self.iv = None
+
+    def send_iv(self, s):
+        ...
+
+    def enc(self, iv, p):
         return ARC4.new(KEY).encrypt(p)

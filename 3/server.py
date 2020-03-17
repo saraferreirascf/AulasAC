@@ -13,24 +13,26 @@ PORT = 45676 #non-privileged ports are > 1023
 KEY= b"very secret key"
 
 class ServerThread(threading.Thread):
-    def __init__(self,dec,c,id):
+    def __init__(self,crypto,c,id):
         super().__init__()
         self.c = c
         self.id = id
-        self.dec = dec
+        self.crypto = crypto
 
     def run(self):
         with closing(self.c) as c:
+            iv = self.crypto.recv_iv(c)
             while True:
                 #c.sendall(b"server here")
                 msg=c.recv(1024)
                 if msg:
-                    print("[",self.id,"]:",end=' ')
-                    #print(dec(KEY,msg).decode())
-                    for byte in self.dec(msg):
-                        sys.stdout.write(str(chr(byte)))
-                        sys.stdout.flush()
-                    print()
+                    plaintext = self.crypto.dec(iv, msg)
+                    sys.stdout.buffer.write(b'[ ')
+                    sys.stdout.buffer.write(bytes(str(self.id), encoding='utf8'))
+                    sys.stdout.buffer.write(b' ]: ')
+                    sys.stdout.buffer.write(plaintext)
+                    sys.stdout.buffer.write(b'\n')
+                    sys.stdout.buffer.flush()
                 else:
                     print("=[",self.id,"]=", "Disconnected")
                     break
@@ -47,7 +49,7 @@ class Server(object):
                 try:
                     c, addr = s.accept()  # Establish connection with client.
                     print("[",order_number,"]", "Connected")
-                    thr = ServerThread(type(self).dec, c, order_number)
+                    thr = ServerThread(type(self), c, order_number)
                     thr.start()
                     order_number=order_number+1
                 except KeyboardInterrupt:
@@ -57,5 +59,9 @@ class Server(object):
 
 class RC4(Server):
     @staticmethod
-    def dec(p):
+    def dec(iv,p):
         return ARC4.new(KEY).decrypt(p)
+
+    @staticmethod
+    def recv_iv(s):
+        ...
