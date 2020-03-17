@@ -9,13 +9,7 @@ PORT = 45676  # The port used by the server
 #KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
 KEY=b"very secret key"
 
-class RC4(object):
-    def __init__(self):
-        self.rc4 = ARC4.new(KEY)
-
-    def enc(self,p):
-        return self.rc4.encrypt(p)
-
+class Client(object):
     def run(self):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
@@ -25,5 +19,9 @@ class RC4(object):
                     s.close()
                     break
                 else:
-                    cipher_stream=self.enc(msg)
-                    s.sendall(cipher_stream)
+                    cryptogram=self.enc(msg)
+                    s.sendall(cryptogram)
+
+class RC4(Client):
+    def enc(self,p):
+        return ARC4.new(KEY).encrypt(p)
