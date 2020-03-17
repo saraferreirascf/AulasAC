@@ -1,6 +1,7 @@
 import socket
 import sys
 from Crypto.Cipher import ARC4
+from Crypto import Random
 import string
 import random 
 
@@ -32,3 +33,15 @@ class RC4(Client):
 
     def enc(self, iv, p):
         return ARC4.new(KEY).encrypt(p)
+
+class AES_CBC_NoPadding(Client):
+    def __init__(self):
+        self.iv = Random.new().read(32)
+
+    def send_iv(self, s):
+        s.sendall(self.iv)
+
+    def enc(self, iv, p):
+        ctr_e = Counter.new(64, prefix=iv)
+        ciph = AES.new(keye, AES.MODE_CTR, counter=ctr_e)
+        return ciph.encrypt(p)

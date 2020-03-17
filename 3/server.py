@@ -65,3 +65,14 @@ class RC4(Server):
     @staticmethod
     def recv_iv(s):
         ...
+
+class AES_CBC_NoPadding(Server):
+    @staticmethod
+    def recv_iv(s):
+        return s.recv(32)
+
+    @staticmethod
+    def dec(iv, p):
+        ctr_e = Counter.new(64, prefix=iv)
+        ciph = AES.new(keye, AES.MODE_CTR, counter=ctr_e)
+        return ciph.decrypt(p)
