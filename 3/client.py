@@ -3,7 +3,6 @@ import sys
 import string
 import random 
 
-from Crypto.Util import Counter
 from Crypto.Cipher import ARC4, AES
 from Crypto import Random
 
@@ -51,8 +50,7 @@ class AES_CBC_NoPadding(Client):
         return p
 
     def enc(self, iv, p):
-        ctr_e = Counter.new(64, prefix=iv[:8])
-        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
+        ciph = AES.new(KEY, AES.MODE_CBC, iv)
         return ciph.encrypt(p)
 
 class AES_CBC_PKCS5Padding(AES_CBC_NoPadding):

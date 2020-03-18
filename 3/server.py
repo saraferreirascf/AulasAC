@@ -5,7 +5,6 @@ import random
 import sys
 
 from contextlib import closing
-from Crypto.Util import Counter
 from Crypto.Cipher import ARC4, AES
 
 HOST = '127.0.0.1'  #localhost
@@ -83,8 +82,7 @@ class AES_CBC_NoPadding(Server):
 
     @staticmethod
     def dec(iv, p):
-        ctr_e = Counter.new(64, prefix=iv[:8])
-        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
+        ciph = AES.new(KEY, AES.MODE_CBC, iv)
         return ciph.decrypt(p)
 
 class AES_CBC_PKCS5Padding(AES_CBC_NoPadding):
