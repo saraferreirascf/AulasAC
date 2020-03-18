@@ -76,3 +76,22 @@ class AES_CFB8_PKCS5Padding(AES_CFB8_NoPadding):
     def pad(self, p):
         n = 16 - len(p)%16
         return p + bytes([n] * n)
+
+class AES_CFB_NoPadding(Client):
+    def __init__(self):
+        self.iv = Random.new().read(16)
+
+    def send_iv(self, s):
+        s.sendall(self.iv)
+
+    def pad(self, p):
+        return p
+
+    def enc(self, iv, p):
+        ciph = AES.new(KEY, AES.MODE_CFB, iv)
+        return ciph.encrypt(p)
+
+class AES_CFB_PKCS5Padding(AES_CFB_NoPadding):
+    def pad(self, p):
+        n = 16 - len(p)%16
+        return p + bytes([n] * n)

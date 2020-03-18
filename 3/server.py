@@ -22,8 +22,8 @@ class ServerThread(threading.Thread):
     def run(self):
         with closing(self.c) as c:
             iv = self.crypto.recv_iv(c)
-            if iv:
-                print("iv received=",iv)
+            #if iv:
+                #print("iv received=",iv)
             while True:
                 #c.sendall(b"server here")
                 msg=c.recv(1024)
@@ -107,6 +107,25 @@ class AES_CFB8_NoPadding(Server):
         return ciph.decrypt(p)
 
 class AES_CFB8_PKCS5Padding(AES_CFB8_NoPadding):
+    @staticmethod
+    def unpad(p):
+        return p[:-p[-1]]
+
+class AES_CFB_NoPadding(Server):
+    @staticmethod
+    def recv_iv(s):
+        return s.recv(16)
+
+    @staticmethod
+    def unpad(p):
+        return p
+
+    @staticmethod
+    def dec(iv, p):
+        ciph = AES.new(KEY, AES.MODE_CFB, iv)
+        return ciph.decrypt(p)
+
+class AES_CFB_PKCS5Padding(AES_CFB_NoPadding):
     @staticmethod
     def unpad(p):
         return p[:-p[-1]]
