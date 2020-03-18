@@ -122,7 +122,7 @@ class AES_CFB_NoPadding(Server):
 
     @staticmethod
     def dec(iv, p):
-        ciph = AES.new(KEY, AES.MODE_CFB, iv)
+        ciph = AES.new(KEY, AES.MODE_CFB, iv, segment_size=128)
         return ciph.decrypt(p)
 
 class AES_CFB_PKCS5Padding(AES_CFB_NoPadding):

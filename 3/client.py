@@ -88,7 +88,7 @@ class AES_CFB_NoPadding(Client):
         return p
 
     def enc(self, iv, p):
-        ciph = AES.new(KEY, AES.MODE_CFB, iv)
+        ciph = AES.new(KEY, AES.MODE_CFB, iv,segment_size=128)
         return ciph.encrypt(p)
 
 class AES_CFB_PKCS5Padding(AES_CFB_NoPadding):
