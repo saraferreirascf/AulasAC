@@ -1,14 +1,16 @@
 import socket
 import sys
-from Crypto.Cipher import ARC4
-from Crypto import Random
 import string
 import random 
+
+from Crypto.Util import Counter
+from Crypto.Cipher import ARC4, AES
+from Crypto import Random
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
 PORT = 45676  # The port used by the server
 #KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
-KEY=b"very secret key"
+KEY = (b"very secret key" + bytes(16))[:16]
 
 class Client(object):
     def run(self):
@@ -21,7 +23,8 @@ class Client(object):
                     s.close()
                     break
                 else:
-                    cryptogram=self.enc(self.iv,msg)
+                    msg = self.pad(msg)
+                    cryptogram = self.enc(self.iv, msg)
                     s.sendall(cryptogram)
 
 class RC4(Client):
@@ -31,17 +34,28 @@ class RC4(Client):
     def send_iv(self, s):
         ...
 
+    def pad(self, p):
+        return p
+
     def enc(self, iv, p):
         return ARC4.new(KEY).encrypt(p)
 
 class AES_CBC_NoPadding(Client):
     def __init__(self):
-        self.iv = Random.new().read(32)
+        self.iv = Random.new().read(16)
 
     def send_iv(self, s):
         s.sendall(self.iv)
 
+    def pad(self, p):
+        return p
+
     def enc(self, iv, p):
-        ctr_e = Counter.new(64, prefix=iv)
-        ciph = AES.new(keye, AES.MODE_CTR, counter=ctr_e)
+        ctr_e = Counter.new(64, prefix=iv[:8])
+        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
         return ciph.encrypt(p)
+
+class AES_CBC_PKCS5Padding(AES_CBC_NoPadding):
+    def pad(self, p):
+        n = 16 - len(p)%16
+        return p + bytes([n] * n)

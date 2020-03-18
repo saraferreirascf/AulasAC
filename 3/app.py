@@ -11,6 +11,9 @@ if __name__ == '__main__':
         # AES in CBC mode with no particular padding scheme
         'Client_AES_CBC_NoPadding': client.AES_CBC_NoPadding,
         'Server_AES_CBC_NoPadding': server.AES_CBC_NoPadding,
+        # AES in CBC mode with PKCS5 padding
+        'Client_AES_CBC_PKCS5Padding': client.AES_CBC_PKCS5Padding,
+        'Server_AES_CBC_PKCS5Padding': server.AES_CBC_PKCS5Padding,
     }
     backend = backends.get(sys.argv[1]) if len(sys.argv) == 2 else None
     if not backend:

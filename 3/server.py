@@ -5,12 +5,13 @@ import random
 import sys
 
 from contextlib import closing
-from Crypto.Cipher import ARC4
+from Crypto.Util import Counter
+from Crypto.Cipher import ARC4, AES
 
 HOST = '127.0.0.1'  #localhost
 PORT = 45676 #non-privileged ports are > 1023
 #KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
-KEY= b"very secret key"
+KEY = (b"very secret key" + bytes(16))[:16]
 
 class ServerThread(threading.Thread):
     def __init__(self,crypto,c,id):
@@ -26,7 +27,8 @@ class ServerThread(threading.Thread):
                 #c.sendall(b"server here")
                 msg=c.recv(1024)
                 if msg:
-                    plaintext = self.crypto.dec(iv, msg)
+                    plaintext_padded = self.crypto.dec(iv, msg)
+                    plaintext = self.crypto.unpad(plaintext_padded)
                     sys.stdout.buffer.write(b'[ ')
                     sys.stdout.buffer.write(bytes(str(self.id), encoding='utf8'))
                     sys.stdout.buffer.write(b' ]: ')
@@ -63,16 +65,29 @@ class RC4(Server):
         return ARC4.new(KEY).decrypt(p)
 
     @staticmethod
+    def unpad(p):
+        return p
+
+    @staticmethod
     def recv_iv(s):
         ...
 
 class AES_CBC_NoPadding(Server):
     @staticmethod
     def recv_iv(s):
-        return s.recv(32)
+        return s.recv(16)
+
+    @staticmethod
+    def unpad(p):
+        return p
 
     @staticmethod
     def dec(iv, p):
-        ctr_e = Counter.new(64, prefix=iv)
-        ciph = AES.new(keye, AES.MODE_CTR, counter=ctr_e)
+        ctr_e = Counter.new(64, prefix=iv[:8])
+        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
         return ciph.decrypt(p)
+
+class AES_CBC_PKCS5Padding(AES_CBC_NoPadding):
+    @staticmethod
+    def unpad(p):
+        return p[:-p[-1]]
