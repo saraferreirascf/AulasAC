@@ -20,6 +20,12 @@ if __name__ == '__main__':
         # AES in CFB 8 bits mode with PKCS5 padding
         'Client_AES_CFB8_PKCS5Padding': client.AES_CFB8_PKCS5Padding,
         'Server_AES_CFB8_PKCS5Padding': server.AES_CFB8_PKCS5Padding,
+        # AES in CFB mode with no particular padding scheme
+        'Client_AES_CFB_NoPadding': client.AES_CFB_NoPadding,
+        'Server_AES_CFB_NoPadding': server.AES_CFB_NoPadding,
+        # AES in CFB mode with PKCS5 padding
+        'Client_AES_CFB_PKCS5Padding': client.AES_CFB_PKCS5Padding,
+        'Server_AES_CFB_PKCS5Padding': server.AES_CFB_PKCS5Padding,
     }
     backend = backends.get(sys.argv[1]) if len(sys.argv) == 2 else None
     if not backend:
