@@ -1,42 +1,88 @@
 import socket
-# import thread module 
-from _thread import *
-import threading 
+import threading
+import string
+import random 
+import sys
+from Crypto.Util import Counter
 
-
-def threaded(c,addr):
-    while True:
-        msg=c.recv(1024)
-        if msg:
-            print("[",order_numbers[addr[1]],"]:",msg.decode('utf-8'))
-        else:
-            print("=[",order_numbers[addr[1]],"]=", "Disconnected")
-            break
-
-    c.close()
-
+from contextlib import closing
+from Crypto.Cipher import AES
+import hashlib
 
 HOST = '127.0.0.1'  #localhost
-PORT = 45678      #non-privileged ports are > 1023
+PORT = 45676 #non-privileged ports are > 1023
+#KEY = "".join([random.choice(string.ascii_letters + string.digits) for n in range(32)])
+KEY = (b"very secret key" + bytes(16))[:16]
 
-order_number=0
-order_numbers={}
+class ServerThread(threading.Thread):
+    def __init__(self,crypto,c,id):
+        super().__init__()
+        self.c = c
+        self.id = id
+        self.crypto = crypto
 
-with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-    s.bind((HOST, PORT))
-    print('Server started!')
-    print('Waiting for clients...')
-    s.listen()
- 
-    while True:
-        c, addr = s.accept()  # Establish connection with client.
-        
-        print("[",order_number,"]", "Connected")
-        order_numbers[addr[1]]=order_number
-        order_number=order_number+1
-        start_new_thread(threaded, (c,addr))
+    def run(self):
+        with closing(self.c) as c:
+            iv = self.crypto.recv_iv(c)
+            k1=hashlib.sha256(KEY,'1') #chave para parametrizar cifra 
+            k2=hashlib.sha256(KEY,'2')
+            #if iv:
+                #print("iv received=",iv)
+            while True:
+                #c.sendall(b"server here")
+                msg=c.recv(1024)
+                if msg:
+                    plaintext_padded = self.crypto.dec(iv, msg)
+                    plaintext = self.crypto.unpad(plaintext_padded)
+                    sys.stdout.buffer.write(b'[ ')
+                    sys.stdout.buffer.write(bytes(str(self.id), encoding='utf8'))
+                    sys.stdout.buffer.write(b' ]: ')
+                    sys.stdout.buffer.write(plaintext)
+                    sys.stdout.buffer.write(b'\n')
+                    sys.stdout.buffer.flush()
+                else:
+                    print("=[",self.id,"]=", "Disconnected")
+                    break
 
-        
-    s.close()
+class Server(object):
+    def run(self):
+        order_number=0
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind((HOST, PORT))
+            print('Server started!')
+            print('Waiting for clients...')
+            s.listen()
+            while True:
+                try:
+                    c, addr = s.accept()  # Establish connection with client.
+                    print("[",order_number,"]", "Connected")
+                    thr = ServerThread(type(self), c, order_number)
+                    thr.start()
+                    order_number=order_number+1
+                except KeyboardInterrupt:
+                    print("Shutting down server")
+                    s.close()
+                    break
+
+
+class AES_CTR_PKCS5Padding(AES_CTR_NoPadding):
+    @staticmethod
+    def unpad(p):
+        return p[:-p[-1]]
+
+class AES_CTR_NoPadding(Server):
+    @staticmethod
+    def recv_iv(s):
+        return s.recv(16)
+
+    @staticmethod
+    def unpad(p):
+        return p
+
+    @staticmethod
+    def dec(iv, p):
+        ctr_d = Counter.new(64, prefix=iv)
+        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_d)
+        return ciph.decrypt(p)
 
     
