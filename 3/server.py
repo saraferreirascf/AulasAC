@@ -22,6 +22,8 @@ class ServerThread(threading.Thread):
     def run(self):
         with closing(self.c) as c:
             iv = self.crypto.recv_iv(c)
+            if iv:
+                print("iv received=",iv)
             while True:
                 #c.sendall(b"server here")
                 msg=c.recv(1024)
