@@ -26,8 +26,8 @@ class ServerThread(threading.Thread):
             iv = self.crypto.recv_iv(c)
             k1=hashlib.sha256(KEY+b'1') #chave para parametrizar cifra 
             k2=hashlib.sha256(KEY+b'2')
-            print(k1)
-            print(k2)
+            #print(k1)
+            #print(k2)
             #if iv:
                 #print("iv received=",iv)
             while True:
