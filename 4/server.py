@@ -79,8 +79,7 @@ class AES_CTR_NoPadding(Server):
 
     @staticmethod
     def dec(iv, p):
-        #ctr_d = Counter.new(64, prefix=iv)
-        ctr_d=Counter.new(128)
+        ctr_d = Counter.new(64, prefix=iv)
         ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_d)
         return ciph.decrypt(p)
 

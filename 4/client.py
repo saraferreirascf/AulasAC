@@ -29,13 +29,13 @@ class Client(object):
                     msg = self.pad(msg)
                     cryptogram = self.enc(self.iv, msg)
                     s.sendall(cryptogram)
-                    s.sendall(hmac.new(k2,cryptogram+b'1',hashlib.sha256).hexdigest().encode()) #e o numero de sequencia?
+                    #s.sendall(hmac.new(k2,cryptogram+b'1',hashlib.sha256).hexdigest().encode()) #e o numero de sequencia?
                     
 
 
 class AES_CTR_NoPadding(Client):
     def __init__(self):
-        self.iv = Random.new().read(16)
+        self.iv = Random.new().read(8)
 
     def send_iv(self, s):
         s.sendall(self.iv)
@@ -44,10 +44,7 @@ class AES_CTR_NoPadding(Client):
         return p
 
     def enc(self, iv, p):
-        print(len(iv))
-        #ctr_e = Counter.new(64, prefix=iv)
-        ctr_e=Counter.new(128) #com o iv diz que o que a funcao retornou foi uma string q n tem tamanho 16???
-        print(ctr_e)
+        ctr_e = Counter.new(64, prefix=iv)
         ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
         return ciph.encrypt(p)
 
