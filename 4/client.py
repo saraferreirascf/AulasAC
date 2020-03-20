@@ -3,7 +3,8 @@ import sys
 import string
 import random 
 
-from Crypto.Cipher import ARC4, AES
+from Crypto.Cipher import AES
+from Crypto.Util import Counter
 from Crypto import Random
 import hmac
 import hashlib
@@ -17,8 +18,8 @@ class Client(object):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((HOST, PORT))
             self.send_iv(s)
-            k1=hashlib.sha256(KEY,'1') #chave para parametrizar cifra 
-            k2=hashlib.sha256(KEY,'2')
+            k1=hashlib.sha256(KEY+b'1') #chave para parametrizar cifra 
+            k2=hashlib.sha256(KEY+b'2').digest()
             while True:
                 msg=sys.stdin.buffer.readline()[:-1]
                 if msg == b"exit":
@@ -27,8 +28,10 @@ class Client(object):
                 else:
                     msg = self.pad(msg)
                     cryptogram = self.enc(self.iv, msg)
-                    #s.sendall(hmac.new(k2,cryptogram,seq_number)) #qual e o numero de sequencia?
-					#s.sendall(cryptogram)
+                    s.sendall(cryptogram)
+                    s.sendall(hmac.new(k2,cryptogram,hashlib.sha256).hexdigest()) #e o numero de sequencia?
+                    
+
 
 class AES_CTR_NoPadding(Client):
     def __init__(self):
@@ -41,9 +44,12 @@ class AES_CTR_NoPadding(Client):
         return p
 
     def enc(self, iv, p):
-    	ctr_d = Counter.new(64, prefix=iv)
-    	ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
-    	return ciph.encrypt(p)
+        print(len(iv))
+        #ctr_e = Counter.new(64, prefix=iv)
+        ctr_e=Counter.new(128)
+        print(ctr_e)
+        ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_e)
+        return ciph.encrypt(p)
 
 class AES_CTR_PKCS5Padding(AES_CTR_NoPadding):
     def pad(self, p):

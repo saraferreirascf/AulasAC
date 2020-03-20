@@ -5,8 +5,8 @@ import server
 
 if __name__ == '__main__':
     backends = {
-        'Client': client.AES_CTR_NoPadding,
-        'Server': server.AES_CTR_NoPadding,
+        'Client': client.AES_CTR_PKCS5Padding,
+        'Server': server.AES_CTR_PKCS5Padding,
     }
     backend = backends.get(sys.argv[1]) if len(sys.argv) == 2 else None
     if not backend:

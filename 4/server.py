@@ -24,8 +24,10 @@ class ServerThread(threading.Thread):
     def run(self):
         with closing(self.c) as c:
             iv = self.crypto.recv_iv(c)
-            k1=hashlib.sha256(KEY,'1') #chave para parametrizar cifra 
-            k2=hashlib.sha256(KEY,'2')
+            k1=hashlib.sha256(KEY+b'1') #chave para parametrizar cifra 
+            k2=hashlib.sha256(KEY+b'2')
+            print(k1)
+            print(k2)
             #if iv:
                 #print("iv received=",iv)
             while True:
@@ -65,10 +67,6 @@ class Server(object):
                     break
 
 
-class AES_CTR_PKCS5Padding(AES_CTR_NoPadding):
-    @staticmethod
-    def unpad(p):
-        return p[:-p[-1]]
 
 class AES_CTR_NoPadding(Server):
     @staticmethod
@@ -81,8 +79,15 @@ class AES_CTR_NoPadding(Server):
 
     @staticmethod
     def dec(iv, p):
-        ctr_d = Counter.new(64, prefix=iv)
+        #ctr_d = Counter.new(64, prefix=iv)
+        ctr_d=Counter.new(128)
         ciph = AES.new(KEY, AES.MODE_CTR, counter=ctr_d)
         return ciph.decrypt(p)
+
+class AES_CTR_PKCS5Padding(AES_CTR_NoPadding):
+    @staticmethod
+    def unpad(p):
+        return p[:-p[-1]]
+
 
     
