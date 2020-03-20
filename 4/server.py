@@ -1,13 +1,21 @@
+
+# TODO
+# Aumentar o num_seq sempre que se recebe uma mensagem
+# Separar receber a mensagem do hma
+# Ver se o hmac gerado aqui é igual ao recebido pelo cliente, se sim, a mensagem esta autenticada
+
+
 import socket
 import threading
 import string
 import random 
 import sys
+import hashlib
+import hmac
 from Crypto.Util import Counter
-
 from contextlib import closing
 from Crypto.Cipher import AES
-import hashlib
+
 
 HOST = '127.0.0.1'  #localhost
 PORT = 45676 #non-privileged ports are > 1023
@@ -24,15 +32,13 @@ class ServerThread(threading.Thread):
     def run(self):
         with closing(self.c) as c:
             iv = self.crypto.recv_iv(c)
-            k1=hashlib.sha256(KEY+b'1') #chave para parametrizar cifra 
-            k2=hashlib.sha256(KEY+b'2')
-            #print(k1)
-            #print(k2)
+            k1=hashlib.sha256(KEY+b'1').digest()
+            k2=hashlib.sha256(KEY+b'2').digest()
             #if iv:
                 #print("iv received=",iv)
             while True:
-                #c.sendall(b"server here")
-                msg=c.recv(1024)
+                #hmac.new(k2,msg+b'1',hashlib.sha256).hexdigest().encode()
+
                 if msg:
                     plaintext_padded = self.crypto.dec(iv, msg)
                     plaintext = self.crypto.unpad(plaintext_padded)
