@@ -70,6 +70,9 @@ class Server(object):
                     break
 
 class SafeServer(Server):
+    def unpad(self, p):
+        return p[:-p[-1]]
+
     def dec(self, p, seq):
         p = self.deserialize(p)
         seq = seq.to_bytes(8, 'big')
@@ -78,4 +81,4 @@ class SafeServer(Server):
             raise ValueError('invalid mac')
         ctr_d = Counter.new(64, prefix=bytes.fromhex(p['iv']))
         ciph = AES.new(K1, AES.MODE_CTR, counter=ctr_d)
-        return ciph.decrypt(bytes.fromhex(p['cryptogram']))
+        return self.unpad(ciph.decrypt(bytes.fromhex(p['cryptogram'])))

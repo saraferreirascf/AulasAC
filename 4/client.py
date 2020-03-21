@@ -40,13 +40,17 @@ class SafeClient(Client):
     def __init__(self):
         self.seq = 0
 
+    def pad(self, p):
+        n = 16 - len(p)%16
+        return p + bytes([n] * n)
+
     def enc(self, p):
         iv = Random.new().read(8)
         ctr_e = Counter.new(64, prefix=iv)
         ciph = AES.new(K1, AES.MODE_CTR, counter=ctr_e)
         seq = self.seq.to_bytes(8, 'big')
         self.seq = (self.seq + 1) & 0xffffffffffffffff
-        cryptogram = ciph.encrypt(p).hex()
+        cryptogram = ciph.encrypt(self.pad(p)).hex()
         mac = hmac.new(K2, cryptogram.encode()+seq, hashlib.sha256).hexdigest()
         return self.serialize({
             'iv': iv.hex(),
