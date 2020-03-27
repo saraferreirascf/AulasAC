@@ -74,7 +74,7 @@ class Server(object):
             while True:
                 try:
                     c, addr = s.accept()  # Establish connection with client.
-                    print("[",order_number,"]", "Connected")
+                    print("[",order_number,"]i", "connected")
                     thr = ServerThread(self, c, order_number)
                     thr.start()
                     order_number+=1
