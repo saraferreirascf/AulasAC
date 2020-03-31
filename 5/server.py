@@ -86,12 +86,12 @@ class Server(object):
 class SafeServer(Server):
     def __init__(self):
         self.keys = {}
+        self.dh = DiffieHellman()
 
     def key_exchange(self, id, c):
         msg = c.recv(4096)
-        dh = DiffieHellman()
-        c.sendall(self.serialize(dh.get_public()))
-        key = dh.compute_shared_secret(self.deserialize(msg))
+        c.sendall(self.serialize(self.dh.get_public()))
+        key = self.dh.compute_shared_secret(self.deserialize(msg))
         k1 = hashlib.sha256(key+b'1').digest()[:16]
         k2 = hashlib.sha256(key+b'2').digest()[:16]
         self.keys[id] = (k1, k2) # TODO: synchronize this with a mutex
