@@ -111,9 +111,9 @@ class DiffieHellman(object):
             with open(param_path, 'rb') as f:
                 _, _, der = pem.unarmor(f.read())
                 param = DSAParams.load(der)
-                self.p = param['p']
-                self.x = randint(0, param['q']-1)
-                self.y = pow(param['g'], self.x, self.p)
+                self.p = int(param['p'])
+                self.x = randint(0, int(param['q'])-1)
+                self.y = pow(int(param['g']), self.x, self.p)
         else:
             self.p = P
             self.x = randint(0, Q-1)
