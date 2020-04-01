@@ -4,12 +4,12 @@ import string
 import random 
 import hmac
 import json
-import hashlib
 import base64
 
 from keyexchange import DiffieHellman
 from Crypto.Cipher import AES
 from Crypto.Util import Counter
+from Crypto.Hash import SHA256
 from Crypto import Random
 
 HOST = '127.0.0.1'  # The server's hostname or IP address
@@ -61,8 +61,8 @@ class SafeClient(Client):
         c.sendall(self.serialize(dh.get_public()))
         msg = c.recv(4096)
         key = dh.compute_shared_secret(self.deserialize(msg))
-        self.k1 = hashlib.sha256(key+b'1').digest()[:16]
-        self.k2 = hashlib.sha256(key+b'2').digest()[:16]
+        self.k1 = SHA256.new(key+b'1').digest()[:16]
+        self.k2 = SHA256.new(key+b'2').digest()[:16]
 
     def pad(self, p):
         n = 16 - len(p)%16
@@ -75,7 +75,7 @@ class SafeClient(Client):
         seq = self.seq.to_bytes(8, 'big')
         self.seq = (self.seq + 1) & 0xffffffffffffffff
         cryptogram = str(base64.encodebytes(ciph.encrypt(self.pad(p))), 'utf8')
-        mac = hmac.new(self.k2, cryptogram.encode()+seq, hashlib.sha256).hexdigest()
+        mac = hmac.new(self.k2, cryptogram.encode()+seq, SHA256.new).hexdigest()
         return self.serialize({
             'iv': str(base64.encodebytes(iv), 'utf8'),
             'mac': mac,

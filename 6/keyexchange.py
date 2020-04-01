@@ -2,9 +2,9 @@ import base64
 
 from Crypto.Util.number import long_to_bytes, bytes_to_long
 from Crypto.Random.random import randint
-
-from asn1crypto.keys import DSAParams
-from asn1crypto import pem
+from Crypto.Signature import pkcs1_15
+from Crypto.PublicKey import RSA
+from Crypto.Hash import SHA256
 
 P = bytes_to_long(bytes([
     0xA5, 0x2F, 0xDA, 0xC8, 0xF2, 0xC7, 0x27, 0xFA, 0xAE, 0xA0, 0x19, 0x87,
@@ -105,26 +105,56 @@ Q = bytes_to_long(bytes([
     0x6A, 0xF1
 ]))
 
-class DiffieHellman(object):
-    def __init__(self, param_path=None):
-        if param_path:
-            with open(param_path, 'rb') as f:
-                _, _, der = pem.unarmor(f.read())
-                param = DSAParams.load(der)
-                self.p = int(param['p'])
-                self.x = randint(0, int(param['q'])-1)
-                self.y = pow(int(param['g']), self.x, self.p)
-        else:
-            self.p = P
-            self.x = randint(0, Q-1)
-            self.y = pow(G, self.x, P)
+class DiffieHellmanHelper(object):
+    def __init__(self):
+        self.x = randint(0, Q-1)
+        self.y = pow(G, self.x, P)
 
-    def get_public(self):
-        return {'y': str(base64.encodebytes(long_to_bytes(self.y)), 'utf8')}
+    def get_symmetric(self):
+        return long_to_bytes(self.y)
 
-    def compute_shared_secret(self, partner_public):
-        y = bytes_to_long(base64.decodebytes(partner_public['y'].encode()))
-        return self._compute_shared_secret(y)
+    def get_encoded_symmetric(self):
+        return {'y': str(base64.encodebytes(self.get_symmetric()), 'utf8')}
 
-    def _compute_shared_secret(self, partner_y):
-        return long_to_bytes(pow(partner_y, self.x, self.p))
+    def decode_symmetric(self, partner_public):
+        return base64.decodebytes(partner_public['y'].encode())
+
+    def compute_shared_secret(self, partner_y):
+        return long_to_bytes(pow(bytes_to_long(partner_y), self.x, P))
+
+class SignHelper(object):
+    def __init__(self, key_path=''):
+        with open(key_path, 'rb') as f:
+            self.s = pkcs1_15.new(RSA.import_key(f.read()))
+
+    def sign(self, msg):
+        h = SHA256.new(msg)
+        return self.s.sign(h)
+
+    def verify(self, msg, sig):
+        h = SHA256.new(msg)
+        return self.s.verify(h, sig)
+
+class S2SHelper(DiffieHellmanHelper):
+    def __init__(self, key_path=''):
+        self.s = SignHelper(key_path)
+        super().__init__()
+
+    def decode_user(self, id):
+        return id['user']
+
+    def get_unencrypted_challenge(self, partner_symmetric):
+        h = SHA256.new()
+        h.update(self.get_symmetric())
+        h.update(partner_symmetric)
+        return (self.get_symmetric(), self.s.sign(h))
+
+    def get_encoded_unencrypted_challenge(self, partner_symmetric):
+        our_symmetric, challenge = self.get_unencrypted_challenge(partner_symmetric)
+        our_symmetric = base64.encodebytes(our_symmetric)
+        challenge = base64.encodebytes(challenge)
+        return our_symmetric+b':'+challenge
+
+    def decode_challenge(self, ch):
+        [partner_symmetric, challenge] = map(base64.decodebytes, ch.split(b':'))
+        return partner_symmetric, challenge
