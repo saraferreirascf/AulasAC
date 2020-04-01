@@ -2,7 +2,9 @@ import base64
 
 from Crypto.Util.number import long_to_bytes, bytes_to_long
 from Crypto.Random.random import randint
-from Crypto.PublicKey import DSA
+
+from asn1crypto.keys import DSAParams
+from asn1crypto import pem
 
 P = bytes_to_long(bytes([
     0xA5, 0x2F, 0xDA, 0xC8, 0xF2, 0xC7, 0x27, 0xFA, 0xAE, 0xA0, 0x19, 0x87,
@@ -104,13 +106,14 @@ Q = bytes_to_long(bytes([
 ]))
 
 class DiffieHellman(object):
-    def __init__(self, key_path=None):
-        if key_path:
-            with open(key_path, 'rb') as f:
-                k = DSA.import_key(f.read())
-                self.p = k.p
-                self.x = k.x
-                self.y = k.y
+    def __init__(self, param_path=None):
+        if param_path:
+            with open(param_path, 'rb') as f:
+                _, _, der = pem.unarmor(f.read())
+                param = DSAParams.load(der)
+                self.p = param['p']
+                self.x = randint(0, param['q']-1)
+                self.y = pow(param['g'], self.x, self.p)
         else:
             self.p = P
             self.x = randint(0, Q-1)
