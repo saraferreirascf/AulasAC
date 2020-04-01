@@ -2,6 +2,7 @@ import base64
 
 from Crypto.Util.number import long_to_bytes, bytes_to_long
 from Crypto.Random.random import randint
+from Crypto.PublicKey import DSA
 
 P = bytes_to_long(bytes([
     0xA5, 0x2F, 0xDA, 0xC8, 0xF2, 0xC7, 0x27, 0xFA, 0xAE, 0xA0, 0x19, 0x87,
@@ -103,16 +104,24 @@ Q = bytes_to_long(bytes([
 ]))
 
 class DiffieHellman(object):
-    def __init__(self):
-        self.private = randint(0, Q-1)
-        self.public = pow(G, self.private, P)
+    def __init__(self, key_path=None):
+        if key_path:
+            with open(key_path, 'rb') as f:
+                k = DSA.import_key(f.read())
+                self.p = k.p
+                self.x = k.x
+                self.y = k.y
+        else:
+            self.p = P
+            self.x = randint(0, Q-1)
+            self.y = pow(G, self.x, P)
 
     def get_public(self):
-        return {'public': str(base64.encodebytes(long_to_bytes(self.public)), 'utf8')}
+        return {'y': str(base64.encodebytes(long_to_bytes(self.y)), 'utf8')}
 
     def compute_shared_secret(self, partner_public):
-        public = bytes_to_long(base64.decodebytes(partner_public['public'].encode()))
-        return self._compute_shared_secret(public)
+        y = bytes_to_long(base64.decodebytes(partner_public['y'].encode()))
+        return self._compute_shared_secret(y)
 
-    def _compute_shared_secret(self, partner_public):
-        return long_to_bytes(pow(partner_public, self.private, P))
+    def _compute_shared_secret(self, partner_y):
+        return long_to_bytes(pow(partner_y, self.x, self.p))
