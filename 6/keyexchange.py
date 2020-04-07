@@ -127,13 +127,21 @@ class SignHelper(object):
         with open(key_path, 'rb') as f:
             self.s = pkcs1_15.new(RSA.import_key(f.read()))
 
-    def sign(self, msg):
-        h = SHA256.new(msg)
+    def sign(self, *msg):
+        h = SHA256.new()
+        for m in msg:
+            h.update(m)
         return self.s.sign(h)
 
-    def verify(self, msg, sig):
-        h = SHA256.new(msg)
-        return self.s.verify(h, sig)
+    def verify(self, sig, *msg):
+        h = SHA256.new()
+        for m in msg:
+            h.update(m)
+        try:
+            self.s.verify(h, sig)
+            return True
+        except Exception:
+            return False
 
 class S2SHelper(DiffieHellmanHelper):
     def __init__(self, key_path=''):
@@ -144,17 +152,11 @@ class S2SHelper(DiffieHellmanHelper):
         return id['user']
 
     def get_unencrypted_challenge(self, partner_symmetric):
-        h = SHA256.new()
-        h.update(self.get_symmetric())
-        h.update(partner_symmetric)
-        return (self.get_symmetric(), self.s.sign(h))
+        our_symmetric = self.get_symmetric()
+        return our_symmetric, self.s.sign(our_symmetric, partner_symmetric)
 
     def get_encoded_unencrypted_challenge(self, partner_symmetric):
-        our_symmetric, challenge = self.get_unencrypted_challenge(partner_symmetric)
-        our_symmetric = base64.encodebytes(our_symmetric)
-        challenge = base64.encodebytes(challenge)
-        return our_symmetric+b':'+challenge
+        return tuple(map(base64.encodebytes, self.get_unencrypted_challenge(partner_symmetric)))
 
     def decode_challenge(self, ch):
-        [partner_symmetric, challenge] = map(base64.decodebytes, ch.split(b':'))
-        return partner_symmetric, challenge
+        return base64.decodebytes(ch)
