@@ -77,7 +77,7 @@ class SafeClient(Client):
         self.k2 = SHA256.new(key+b'2').digest()[:16]
 
         challenge = s2s.decode_challenge(self.dec(msg))
-        k = SignHelper(f'server.pub')
+        k = SignHelper(f'server.cert')
 
         if not k.verify(challenge, partner_symmetric, s2s.get_symmetric()):
             raise ValueError('failed to verify signature')

@@ -1,3 +1,4 @@
+import x509
 import base64
 
 from Crypto.Util.number import long_to_bytes, bytes_to_long
@@ -124,8 +125,15 @@ class DiffieHellmanHelper(object):
 
 class SignHelper(object):
     def __init__(self, key_path=''):
-        with open(key_path, 'rb') as f:
-            self.s = pkcs1_15.new(RSA.import_key(f.read()))
+        key = None
+        if key_path[-5:] == '.cert':
+            cert = x509.Certificate(key_path)
+            key = cert.public_key()
+        else:
+            with open(key_path, 'rb') as f:
+                asn1_data = f.read()
+                key = RSA.import_key(asn1_data)
+        self.s = pkcs1_15.new(key)
 
     def sign(self, *msg):
         h = SHA256.new()

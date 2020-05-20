@@ -112,7 +112,7 @@ class SafeServer(Server):
         c.sendall(self.enc(id, challenge, seq, our_symmetric))
 
         challenge = s2s.decode_challenge(self.dec(id, c.recv(4096), seq+1))
-        k = SignHelper(f'users/{user}.pub')
+        k = SignHelper(f'users/{user}.cert')
 
         if not k.verify(challenge, partner_symmetric, s2s.get_symmetric()):
             raise ValueError('failed to verify signature')
