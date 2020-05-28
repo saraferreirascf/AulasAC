@@ -64,4 +64,4 @@ def verify_chain_of_trust(cert, trusted_certs):
     # Returns None if certificate can be validated
     result = store_ctx.verify_certificate()
 
-    return resut == None
+    return result == None

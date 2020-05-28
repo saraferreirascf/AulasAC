@@ -64,9 +64,20 @@ class SafeClient(Client):
         self.seq = 0
 
     def key_exchange(self, c):
-        s2s = S2SHelper(f'keystore/{self.user}.pem')
+        s2s = S2SHelper(
+            key_path=f'keystore/{self.user}.pem',
+            cert_chain_path=f'keystore/{self.user}.chain')
+
+        msg = s2s.get_encoded_certchain()
+        c.sendall(self.serialize(msg))
+
+        msg = self.deserialize(c.recv(1<<20))
+        chain = s2s.decode_certchain(msg)
+
+        if not s2s.verify_chain_of_trust(chain):
+            raise ValueError('failed to verify trust in cert chain')
+
         msg = s2s.get_encoded_symmetric()
-        msg['user'] = self.user
         c.sendall(self.serialize(msg))
 
         msg = self.deserialize(c.recv(4096))
@@ -77,7 +88,7 @@ class SafeClient(Client):
         self.k2 = SHA256.new(key+b'2').digest()[:16]
 
         challenge = s2s.decode_challenge(self.dec(msg))
-        k = SignHelper(f'keystore/server.cert')
+        k = SignHelper(cert=chain[0])
 
         if not k.verify(challenge, partner_symmetric, s2s.get_symmetric()):
             raise ValueError('failed to verify signature')

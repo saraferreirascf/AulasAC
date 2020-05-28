@@ -124,15 +124,18 @@ class DiffieHellmanHelper(object):
         return long_to_bytes(pow(bytes_to_long(partner_y), self.x, P))
 
 class SignHelper(object):
-    def __init__(self, key_path=''):
+    def __init__(self, cert=None, key_path=''):
         key = None
-        if key_path[-5:] == '.cert':
-            cert = x509.Certificate(path=key_path)
+        if cert:
             key = cert.public_key()
         else:
-            with open(key_path, 'rb') as f:
-                asn1_data = f.read()
-                key = RSA.import_key(asn1_data)
+            if key_path[-5:] == '.cert':
+                cert = x509.Certificate(path=key_path)
+                key = cert.public_key()
+            else:
+                with open(key_path, 'rb') as f:
+                    asn1_data = f.read()
+                    key = RSA.import_key(asn1_data)
         self.s = pkcs1_15.new(key)
 
     def sign(self, *msg):
@@ -152,12 +155,26 @@ class SignHelper(object):
             return False
 
 class S2SHelper(DiffieHellmanHelper):
-    def __init__(self, key_path=''):
-        self.s = SignHelper(key_path)
+    def __init__(self, key_path='', cert_chain_path=''):
+        self.s = SignHelper(key_path=key_path)
+        self.chain = x509.load_chain(path=cert_chain_path, parse=False)
         super().__init__()
 
-    def decode_user(self, id):
-        return id['user']
+    def verify_chain_of_trust(self, chain):
+        root = x509.Certificate(path='keystore/root.cert', parse=False)
+        entity = chain[0]
+        ca_chain = chain[1:] + [root]
+        return x509.verify_chain_of_trust(entity, ca_chain)
+
+    def get_encoded_certchain(self):
+        encode = lambda pem: str(base64.encodebytes(pem), 'utf8')
+        return {'chain': list(map(encode, map(lambda c: c.pem, self.chain)))}
+
+    def decode_certchain(self, msg):
+        decode = lambda pem: base64.decodebytes(pem.encode())
+        return list(map(lambda pem: x509.Certificate(pem=pem, parse=False),
+            map(decode,
+                msg['chain'])))
 
     def get_unencrypted_challenge(self, partner_symmetric):
         our_symmetric = self.get_symmetric()

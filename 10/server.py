@@ -97,10 +97,20 @@ class SafeServer(Server):
 
     # https://en.wikipedia.org/wiki/Station-to-Station_protocol
     def key_exchange(self, id, seq, c):
-        msg = self.deserialize(c.recv(4096))
+        s2s = S2SHelper(
+            key_path='keystore/server.pem',
+            cert_chain_path='keystore/server.chain')
 
-        s2s = S2SHelper('keystore/server.pem')
-        user = s2s.decode_user(msg)
+        msg = self.deserialize(c.recv(1<<20))
+        chain = s2s.decode_certchain(msg)
+
+        if not s2s.verify_chain_of_trust(chain):
+            raise ValueError('failed to verify trust in cert chain')
+
+        msg = s2s.get_encoded_certchain()
+        c.sendall(self.serialize(msg))
+
+        msg = self.deserialize(c.recv(4096))
         partner_symmetric = s2s.decode_symmetric(msg)
 
         key = s2s.compute_shared_secret(partner_symmetric)
@@ -112,7 +122,7 @@ class SafeServer(Server):
         c.sendall(self.enc(id, challenge, seq, our_symmetric))
 
         challenge = s2s.decode_challenge(self.dec(id, c.recv(4096), seq+1))
-        k = SignHelper(f'keystore/{user}.cert')
+        k = SignHelper(cert=chain[0])
 
         if not k.verify(challenge, partner_symmetric, s2s.get_symmetric()):
             raise ValueError('failed to verify signature')
