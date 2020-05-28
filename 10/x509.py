@@ -19,7 +19,7 @@ class Certificate(object):
                 self._parse_cert()
 
     def _parse_cert(self):
-        lines = pem.replace(b' ',b'').split()
+        lines = self.pem.replace(b' ',b'').split()
         der = a2b_base64(b''.join(lines[1:-1]))
         self.cert = DerSequence()
         self.cert.decode(der)
