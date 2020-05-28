@@ -64,7 +64,7 @@ class SafeClient(Client):
         self.seq = 0
 
     def key_exchange(self, c):
-        s2s = S2SHelper(f'users/{self.user}.pem')
+        s2s = S2SHelper(f'keystore/{self.user}.pem')
         msg = s2s.get_encoded_symmetric()
         msg['user'] = self.user
         c.sendall(self.serialize(msg))
@@ -77,7 +77,7 @@ class SafeClient(Client):
         self.k2 = SHA256.new(key+b'2').digest()[:16]
 
         challenge = s2s.decode_challenge(self.dec(msg))
-        k = SignHelper(f'server.cert')
+        k = SignHelper(f'keystore/server.cert')
 
         if not k.verify(challenge, partner_symmetric, s2s.get_symmetric()):
             raise ValueError('failed to verify signature')
