@@ -1,0 +1,169 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 0 (0x0)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: C=PT, ST=Porto, L=Porto, O=Universidade do Porto, OU=MSI, CN=SubCA13/emailAddress=up201606726@fc.up.pt
+        Validity
+            Not Before: May 25 20:07:01 2020 GMT
+            Not After : May 25 20:07:01 2021 GMT
+        Subject: C=PT, ST=Porto, L=Porto, O=Universidade do Porto, OU=MSI, CN=Sara Ferreira/emailAddress=up201606726@fc.up.pt
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                RSA Public-Key: (2048 bit)
+                Modulus:
+                    00:bf:df:77:55:f7:87:e2:fb:64:29:75:ed:f6:ee:
+                    ed:c6:e3:f8:d9:fc:95:e0:21:a9:94:28:c7:9b:2e:
+                    64:22:6c:b1:1e:29:fb:ca:e3:d2:3b:34:60:be:cb:
+                    8e:96:85:d1:c7:ce:8f:8d:70:17:28:3f:3b:5c:cc:
+                    4f:dd:26:a9:b1:82:5a:3b:af:54:ee:c0:95:2b:73:
+                    86:b9:eb:99:3c:fc:44:49:92:ab:be:7a:bc:38:91:
+                    3c:3f:ba:f1:eb:fd:c2:59:41:68:43:1a:e3:15:76:
+                    a8:1d:11:f4:8a:b1:9c:29:cc:21:99:60:ac:e0:ef:
+                    5b:a5:95:6b:81:69:af:22:5b:ab:f0:78:f5:d6:9a:
+                    6a:4b:d8:8c:c9:d3:98:ce:06:ba:07:ea:14:92:b6:
+                    fe:c0:97:9d:32:96:39:31:5b:01:69:54:00:af:6c:
+                    86:d8:f7:12:15:2c:d1:59:c8:4b:eb:4f:2b:83:b3:
+                    8f:99:a0:e4:7a:31:d3:39:49:84:e4:c7:e8:b6:cc:
+                    ca:c2:d0:30:63:20:88:75:cd:85:e4:30:60:c7:d6:
+                    7d:ee:ad:8a:2d:4c:be:8c:49:41:4f:6c:9a:bc:75:
+                    31:49:ce:95:f3:a5:f2:e3:f8:de:71:4f:0e:c6:a1:
+                    b2:6d:59:63:b9:7d:7c:e8:91:f6:c9:a7:58:ec:03:
+                    0f:8b
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:FALSE
+            Netscape Comment: 
+                OpenSSL Generated Certificate
+            X509v3 Subject Key Identifier: 
+                52:87:4B:13:44:20:A4:D5:96:A2:AA:16:A2:DA:38:9C:5D:59:FE:96
+            X509v3 Authority Key Identifier: 
+                keyid:74:A5:3C:7B:9F:14:E3:22:6F:0D:65:2B:06:0A:AB:FD:F8:2D:94:93
+
+    Signature Algorithm: sha256WithRSAEncryption
+         4e:08:f9:79:0c:06:86:ee:68:d0:66:f7:4e:bd:97:fb:fb:dc:
+         75:98:e7:51:24:7b:03:d3:f5:d8:79:83:e9:23:93:81:a2:aa:
+         c8:87:57:3f:3e:32:6b:97:46:1b:06:3c:b5:91:28:d0:65:0a:
+         fa:4a:cc:95:04:dd:95:3d:c1:a2:13:4a:53:7d:b0:73:12:be:
+         ac:b7:1f:73:2e:5b:6a:27:10:0e:f0:6f:4e:58:e9:83:3c:b0:
+         71:2e:44:4d:57:cd:3f:59:05:ed:6c:b6:aa:16:37:42:30:4e:
+         ca:cc:29:96:5d:5b:5c:ee:b4:40:8f:b1:79:ac:ca:9d:e2:2f:
+         b7:85:f5:69:8d:eb:3f:8a:1f:73:05:dd:73:f8:c7:b5:c8:58:
+         8b:23:ca:65:e0:83:1e:68:d6:d8:0e:e9:98:e4:6a:1a:2e:58:
+         97:ec:70:df:a4:14:44:57:42:3c:94:b6:11:48:62:c6:fb:fb:
+         8b:61:a5:23:96:85:f7:3d:c3:71:e7:2f:7d:15:63:6e:00:0b:
+         96:00:43:c3:c8:db:9d:04:52:3f:fd:27:d8:55:dc:55:cb:4d:
+         91:ba:a6:db:23:47:e7:29:7b:bd:c4:89:e8:1e:10:d4:e3:df:
+         42:21:df:60:b9:5b:c1:d2:04:4e:4e:ca:12:49:f0:6a:28:d0:
+         14:7f:88:3f
+-----BEGIN CERTIFICATE-----
+MIIEIjCCAwqgAwIBAgIBADANBgkqhkiG9w0BAQsFADCBkjELMAkGA1UEBhMCUFQx
+DjAMBgNVBAgMBVBvcnRvMQ4wDAYDVQQHDAVQb3J0bzEeMBwGA1UECgwVVW5pdmVy
+c2lkYWRlIGRvIFBvcnRvMQwwCgYDVQQLDANNU0kxEDAOBgNVBAMMB1N1YkNBMTMx
+IzAhBgkqhkiG9w0BCQEWFHVwMjAxNjA2NzI2QGZjLnVwLnB0MB4XDTIwMDUyNTIw
+MDcwMVoXDTIxMDUyNTIwMDcwMVowgZgxCzAJBgNVBAYTAlBUMQ4wDAYDVQQIDAVQ
+b3J0bzEOMAwGA1UEBwwFUG9ydG8xHjAcBgNVBAoMFVVuaXZlcnNpZGFkZSBkbyBQ
+b3J0bzEMMAoGA1UECwwDTVNJMRYwFAYDVQQDDA1TYXJhIEZlcnJlaXJhMSMwIQYJ
+KoZIhvcNAQkBFhR1cDIwMTYwNjcyNkBmYy51cC5wdDCCASIwDQYJKoZIhvcNAQEB
+BQADggEPADCCAQoCggEBAL/fd1X3h+L7ZCl17fbu7cbj+Nn8leAhqZQox5suZCJs
+sR4p+8rj0js0YL7LjpaF0cfOj41wFyg/O1zMT90mqbGCWjuvVO7AlStzhrnrmTz8
+REmSq756vDiRPD+68ev9wllBaEMa4xV2qB0R9IqxnCnMIZlgrODvW6WVa4FpryJb
+q/B49daaakvYjMnTmM4GugfqFJK2/sCXnTKWOTFbAWlUAK9shtj3EhUs0VnIS+tP
+K4Ozj5mg5Hox0zlJhOTH6LbMysLQMGMgiHXNheQwYMfWfe6tii1MvoxJQU9smrx1
+MUnOlfOl8uP43nFPDsahsm1ZY7l9fOiR9smnWOwDD4sCAwEAAaN7MHkwCQYDVR0T
+BAIwADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNh
+dGUwHQYDVR0OBBYEFFKHSxNEIKTVlqKqFqLaOJxdWf6WMB8GA1UdIwQYMBaAFHSl
+PHufFOMibw1lKwYKq/34LZSTMA0GCSqGSIb3DQEBCwUAA4IBAQBOCPl5DAaG7mjQ
+ZvdOvZf7+9x1mOdRJHsD0/XYeYPpI5OBoqrIh1c/PjJrl0YbBjy1kSjQZQr6SsyV
+BN2VPcGiE0pTfbBzEr6stx9zLltqJxAO8G9OWOmDPLBxLkRNV80/WQXtbLaqFjdC
+ME7KzCmWXVtc7rRAj7F5rMqd4i+3hfVpjes/ih9zBd1z+Me1yFiLI8pl4IMeaNbY
+DumY5GoaLliX7HDfpBREV0I8lLYRSGLG+/uLYaUjloX3PcNx5y99FWNuAAuWAEPD
+yNudBFI//SfYVdxVy02RuqbbI0fnKXu9xInoHhDU499CId9guVvB0gROTsoSSfBq
+KNAUf4g/
+-----END CERTIFICATE-----
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 13732326815087605459 (0xbe93067b38de36d3)
+    Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=PT, O=Universidade do Porto, OU=MSI, CN=CA ROOT MSI 2019 2020/emailAddress=mbb@fc.up.pt
+        Validity
+            Not Before: Apr 24 16:04:40 2020 GMT
+            Not After : Apr 24 16:04:40 2021 GMT
+        Subject: C=PT, ST=Porto, L=Porto, O=Universidade do Porto, OU=MSI, CN=SubCA13/emailAddress=up201606726@fc.up.pt
+        Subject Public Key Info:
+            Public Key Algorithm: rsaEncryption
+                Public-Key: (2048 bit)
+                Modulus:
+                    00:ab:4e:3d:8a:2e:d2:f3:a1:80:c4:14:2f:88:5a:
+                    1d:36:43:be:8f:5a:6d:1a:85:84:21:ea:1d:5e:45:
+                    35:49:26:80:a7:4b:74:2d:40:4a:23:88:df:9b:44:
+                    78:30:a1:0b:10:3c:26:fc:38:84:b2:0c:d2:f7:ce:
+                    13:04:11:5a:37:08:79:9a:54:59:9a:47:8f:66:72:
+                    ac:b8:4e:0f:4d:2d:99:6e:a5:ee:ff:af:98:1c:90:
+                    e3:3b:a8:78:c2:ee:a0:25:0b:3d:cc:60:55:d4:ee:
+                    fe:bf:c9:ac:13:ac:6a:77:cb:f9:9b:2e:69:4f:71:
+                    0e:f1:0f:78:42:28:95:92:dc:4e:44:b8:d9:15:41:
+                    20:5f:53:b9:17:53:c4:3b:01:3d:51:d7:15:dc:69:
+                    f0:82:e9:ab:3a:7b:9f:d1:ea:8b:e4:5a:0e:23:f6:
+                    9e:99:cc:2e:35:1c:71:72:59:fc:fb:12:da:f1:b7:
+                    1f:d4:f8:87:a5:db:9e:f7:db:51:00:f7:80:b9:22:
+                    91:4a:56:41:52:15:15:a8:a3:f4:64:23:60:8f:3f:
+                    0c:7b:17:7d:93:3f:b3:82:83:cc:9c:9b:57:67:d9:
+                    ae:90:5b:7f:db:ef:db:40:72:87:dd:75:19:b6:3c:
+                    46:d1:80:c3:6f:b1:36:8c:61:d6:ed:83:e6:b0:02:
+                    0f:fb
+                Exponent: 65537 (0x10001)
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                74:A5:3C:7B:9F:14:E3:22:6F:0D:65:2B:06:0A:AB:FD:F8:2D:94:93
+            X509v3 Authority Key Identifier: 
+                keyid:82:30:35:17:AA:FD:61:5F:74:CC:A5:00:91:BE:89:66:0B:FF:FF:0B
+                DirName:/C=PT/O=Universidade do Porto/OU=MSI/CN=CA ROOT MSI 2019 2020/emailAddress=mbb@fc.up.pt
+                serial:BE:93:06:7B:38:DE:36:CF
+
+            X509v3 Basic Constraints: 
+                CA:TRUE
+    Signature Algorithm: sha1WithRSAEncryption
+         44:84:d6:a4:01:91:c5:23:cd:df:43:49:39:12:a7:b0:1e:8f:
+         95:93:a8:1d:ee:73:4b:bb:f9:2d:ec:11:0b:91:1b:04:d8:e5:
+         24:54:f1:50:89:00:df:05:e4:ed:a1:39:98:11:db:57:a4:86:
+         6f:db:62:ae:1b:24:93:c8:5b:58:1f:62:46:5f:27:bc:e9:cf:
+         b3:71:7d:cf:e6:ed:7e:33:74:80:79:9c:e5:bd:a7:27:bc:ad:
+         75:2f:03:c9:90:e4:1e:6c:3f:21:a5:5e:e5:72:27:99:1f:8c:
+         ea:c2:94:f6:99:ce:db:9d:fc:af:2d:f9:fd:d6:90:57:2b:a1:
+         4b:34:38:23:2a:fc:80:c7:e6:87:46:d7:3d:de:7a:75:fe:e7:
+         34:9f:9b:f6:01:55:a1:5c:36:c1:3f:cd:25:96:e7:2f:d3:28:
+         88:4e:b4:81:7b:f5:1b:44:54:c5:70:1b:67:34:06:03:de:f1:
+         eb:27:ce:9c:19:83:86:ef:64:97:5d:f8:9f:b4:ef:76:f1:5c:
+         c6:da:9b:a1:b0:c2:af:3a:b0:e1:e7:53:8b:0d:bb:da:ed:20:
+         2d:6f:47:60:7d:d1:c4:88:00:60:c1:47:80:0b:14:fc:f0:ca:
+         b6:22:38:35:5d:68:30:95:8d:4b:7d:76:77:51:39:ae:7b:ec:
+         87:ce:23:6f
+-----BEGIN CERTIFICATE-----
+MIIEbDCCA1SgAwIBAgIJAL6TBns43jbTMA0GCSqGSIb3DQEBBQUAMHgxCzAJBgNV
+BAYTAlBUMR4wHAYDVQQKExVVbml2ZXJzaWRhZGUgZG8gUG9ydG8xDDAKBgNVBAsT
+A01TSTEeMBwGA1UEAxMVQ0EgUk9PVCBNU0kgMjAxOSAyMDIwMRswGQYJKoZIhvcN
+AQkBFgxtYmJAZmMudXAucHQwHhcNMjAwNDI0MTYwNDQwWhcNMjEwNDI0MTYwNDQw
+WjCBkjELMAkGA1UEBhMCUFQxDjAMBgNVBAgMBVBvcnRvMQ4wDAYDVQQHDAVQb3J0
+bzEeMBwGA1UECgwVVW5pdmVyc2lkYWRlIGRvIFBvcnRvMQwwCgYDVQQLDANNU0kx
+EDAOBgNVBAMMB1N1YkNBMTMxIzAhBgkqhkiG9w0BCQEWFHVwMjAxNjA2NzI2QGZj
+LnVwLnB0MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq049ii7S86GA
+xBQviFodNkO+j1ptGoWEIeodXkU1SSaAp0t0LUBKI4jfm0R4MKELEDwm/DiEsgzS
+984TBBFaNwh5mlRZmkePZnKsuE4PTS2ZbqXu/6+YHJDjO6h4wu6gJQs9zGBV1O7+
+v8msE6xqd8v5my5pT3EO8Q94QiiVktxORLjZFUEgX1O5F1PEOwE9UdcV3Gnwgumr
+Onuf0eqL5FoOI/aemcwuNRxxcln8+xLa8bcf1PiHpdue99tRAPeAuSKRSlZBUhUV
+qKP0ZCNgjz8Mexd9kz+zgoPMnJtXZ9mukFt/2+/bQHKH3XUZtjxG0YDDb7E2jGHW
+7YPmsAIP+wIDAQABo4HdMIHaMB0GA1UdDgQWBBR0pTx7nxTjIm8NZSsGCqv9+C2U
+kzCBqgYDVR0jBIGiMIGfgBSCMDUXqv1hX3TMpQCRvolmC///C6F8pHoweDELMAkG
+A1UEBhMCUFQxHjAcBgNVBAoTFVVuaXZlcnNpZGFkZSBkbyBQb3J0bzEMMAoGA1UE
+CxMDTVNJMR4wHAYDVQQDExVDQSBST09UIE1TSSAyMDE5IDIwMjAxGzAZBgkqhkiG
+9w0BCQEWDG1iYkBmYy51cC5wdIIJAL6TBns43jbPMAwGA1UdEwQFMAMBAf8wDQYJ
+KoZIhvcNAQEFBQADggEBAESE1qQBkcUjzd9DSTkSp7Aej5WTqB3uc0u7+S3sEQuR
+GwTY5SRU8VCJAN8F5O2hOZgR21ekhm/bYq4bJJPIW1gfYkZfJ7zpz7Nxfc/m7X4z
+dIB5nOW9pye8rXUvA8mQ5B5sPyGlXuVyJ5kfjOrClPaZztud/K8t+f3WkFcroUs0
+OCMq/IDH5odG1z3eenX+5zSfm/YBVaFcNsE/zSWW5y/TKIhOtIF79RtEVMVwG2c0
+BgPe8esnzpwZg4bvZJdd+J+073bxXMbam6Gwwq86sOHnU4sNu9rtIC1vR2B90cSI
+AGDBR4ALFPzwyrYiODVdaDCVjUt9dndROa577IfOI28=
+-----END CERTIFICATE-----
