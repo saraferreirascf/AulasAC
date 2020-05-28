@@ -14,20 +14,19 @@ class Certificate(object):
             assert i != -1
             pem = pem[i:]
             self.pem = pem
+            self.cert = None
             if parse:
-                lines = pem.replace(b' ',b'').split()
-                der = a2b_base64(b''.join(lines[1:-1]))
-                self.cert = DerSequence()
-                self.cert.decode(der)
-            else:
-                self.cert = None
+                self._parse_cert()
+
+    def _parse_cert(self):
+        lines = pem.replace(b' ',b'').split()
+        der = a2b_base64(b''.join(lines[1:-1]))
+        self.cert = DerSequence()
+        self.cert.decode(der)
 
     def public_key(self):
         if not self.cert:
-            lines = self.pem.replace(b' ',b'').split()
-            der = a2b_base64(b''.join(lines[1:-1]))
-            self.cert = DerSequence()
-            self.cert.decode(der)
+            self._parse_cert()
         subject = DerSequence()
         subject.decode(self.cert[0])
         return RSA.import_key(subject[6])
