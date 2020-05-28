@@ -127,7 +127,7 @@ class SignHelper(object):
     def __init__(self, key_path=''):
         key = None
         if key_path[-5:] == '.cert':
-            cert = x509.Certificate(key_path)
+            cert = x509.Certificate(path=key_path)
             key = cert.public_key()
         else:
             with open(key_path, 'rb') as f:

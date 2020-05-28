@@ -5,18 +5,19 @@ from OpenSSL import crypto
 from Crypto.Util.asn1 import DerSequence
 from Crypto.PublicKey import RSA
 from binascii import a2b_base64
+from pathlib import Path
 
 class Certificate(object):
-    def __init__(self, path='', parse=True):
-        with open(path, 'rb') as f:
-            pem = f.read()
-            i = pem.find(b'-----BEGIN CERTIFICATE-----')
-            assert i != -1
-            pem = pem[i:]
-            self.pem = pem
-            self.cert = None
-            if parse:
-                self._parse_cert()
+    def __init__(self, path='', pem='', parse=True):
+        if path:
+            pem = Path(path).read_bytes()
+        i = pem.find(b'-----BEGIN CERTIFICATE-----')
+        assert i != -1
+        pem = pem[i:]
+        self.pem = pem
+        self.cert = None
+        if parse:
+            self._parse_cert()
 
     def _parse_cert(self):
         lines = self.pem.replace(b' ',b'').split()
@@ -30,6 +31,22 @@ class Certificate(object):
         subject = DerSequence()
         subject.decode(self.cert[0])
         return RSA.import_key(subject[6])
+
+def load_chain(path='', parse=True):
+    chain = []
+    pem = Path(path).read_bytes()
+
+    begin = b'-----BEGIN CERTIFICATE-----'
+    end = b'-----END CERTIFICATE-----'
+
+    while True:
+        a = pem.find(begin)
+        if a == -1:
+            return chain
+        b = pem[a:].find(end)
+        cert_pem = pem[a:][:b+len(end)+1]
+        chain.append(Certificate(pem=cert_pem, parse=parse))
+        pem = pem[a:][b+len(end)+1:]
 
 # http://www.yothenberg.com/validate-x509-certificate-in-python/
 def verify_chain_of_trust(cert, trusted_certs):
