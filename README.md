@@ -6,3 +6,6 @@ respetivo tutorial. Usámos o python 3, e os seguintes pacotes do pip:
     pycrypto
     pyopenssl
     asn1crypto
+    
+    
+ > Todos os guiões foram concluidos com sucesso.
