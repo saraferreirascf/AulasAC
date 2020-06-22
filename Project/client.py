@@ -41,6 +41,12 @@ def main():
             msg = pickle.dumps(dict(userid=userid, pin=pin))
             c.sendall(msg)
 
+            # check if ok
+            msg = pickle.loads(c.recv(1024))
+            if not msg[ok]:
+                print(msg[err])
+                return
+
             # read 2fa token
             print('Enter the 2fa token:')
             token = sys.stdin.readline()[:-1]
@@ -48,6 +54,12 @@ def main():
             # send token
             msg = pickle.dumps(dict(token=token))
             c.sendall(msg)
+
+            # check if ok
+            msg = pickle.loads(c.recv(1024))
+            if not msg[ok]:
+                print(msg[err])
+                return
 
 if __name__ == '__main__':
     main()

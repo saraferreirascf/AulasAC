@@ -66,6 +66,8 @@ class SockHandler(Thread):
             # retrieve user id
             userid = msg.get('userid')
             if not userid:
+                msg = pickle.dumps(dict(err='no userid'))
+                c.sendall(msg)
                 print(f'{self.addr} : no user id')
                 print(f'{self.addr} : disconnected')
                 return
@@ -73,15 +75,23 @@ class SockHandler(Thread):
             # retrieve pin
             pin = msg.get('pin')
             if not pin:
+                msg = pickle.dumps(dict(err='no pin'))
+                c.sendall(msg)
                 print(f'{self.addr} : no pin')
                 print(f'{self.addr} : disconnected')
                 return
 
             # validate pin
             if not self.state.check_pin(userid, pin):
+                msg = pickle.dumps(dict(err='invalid pin'))
+                c.sendall(msg)
                 print(f'{self.addr} : invalid pin: {pin}: for user: {userid}')
                 print(f'{self.addr} : disconnected')
                 return
+            
+            # first stage of auth -- ok
+            msg = pickle.dumps(dict(ok=True))
+            c.sendall(msg)
 
             # receive token
             msg = pickle.loads(c.recv(1024))
@@ -93,11 +103,15 @@ class SockHandler(Thread):
 
             # verify token
             if not self.state.check_2fa(userid, token):
+                msg = pickle.dumps(dict(err='no token'))
+                c.sendall(msg)
                 print(f'{self.addr} : token expired')
                 print(f'{self.addr} : disconnected')
                 return
 
             # we're good to go!
+            msg = pickle.dumps(dict(ok=True))
+            c.sendall(msg)
             print(f'{self.addr} : authenticated')
             print(f'{self.addr} : disconnected')
 
