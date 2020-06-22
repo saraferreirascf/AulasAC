@@ -1,7 +1,10 @@
+import os
 import sys
 
 import client
 import server
+
+from random import randrange
 
 if __name__ == '__main__':
     backends = {
@@ -16,4 +19,4 @@ if __name__ == '__main__':
         for b in backends.keys():
             print(f'\t{b}')
         sys.exit(1)
-    backend(port=2500)
+    backend(port=int(os.getenv('PORT') or 2500))

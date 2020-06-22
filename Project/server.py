@@ -154,6 +154,7 @@ def main(port=None):
         while True:
             try:
                 s, addr = listener.accept()
+                addr = f'{addr[0]}:{addr[1]}'
                 print(f'{addr} : connected')
                 s = ctx.wrap_socket(s, server_side=True)
                 SockHandler(s, addr, db).start()

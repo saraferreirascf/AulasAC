@@ -12,16 +12,28 @@ def hash_pin(pin, salt):
     state.update(salt)
     return state.digest()
 
+def splash_screen():
+    print()
+    print()
+    print("/***************************\\")
+    print("|            ATM            |")
+    print("|           a.k.a.          |")
+    print("|       All The Money       |")
+    print("\\***************************/")
+    print()
+    print()
+
 def main(port=None):
     # load db
     db = pickle.loads(Path('users.pickle').read_bytes())
 
     # read user id
-    print('Enter the user id:')
+    splash_screen()
+    print('Assume the role of a card reader, and type the card id, will you?')
     userid = sys.stdin.readline()[:-1].encode()
 
     # read card pin
-    print('Enter the pin:')
+    print('Good, good... Now punch in the pin:')
     pin = sys.stdin.readline()[:-1].encode()
 
     # fetch secret
@@ -37,6 +49,8 @@ def main(port=None):
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
+            print('Dialing backend...')
+
             # connect
             c.connect(('localhost', port))
 
@@ -47,11 +61,11 @@ def main(port=None):
             # check if ok
             msg = pickle.loads(c.recv(1024))
             if not msg[ok]:
-                print(msg[err])
+                print(f'Error: {msg[err]}')
                 return
 
             # read 2fa token
-            print('Enter the 2fa token:')
+            print('Punch in your 2fa token:')
             token = sys.stdin.readline()[:-1]
 
             # send token
@@ -61,7 +75,8 @@ def main(port=None):
             # check if ok
             msg = pickle.loads(c.recv(1024))
             if not msg[ok]:
-                print(msg[err])
+                print(f'Error: {msg[err]}')
                 return
 
             print(f'Autheticated as: {str(userid, "utf8")}')
+            print('Alright, time to order some Uber Eats(tm)!')
