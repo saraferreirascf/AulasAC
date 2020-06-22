@@ -121,8 +121,6 @@ def generate_user_id():
 
 def main_new_user():
     db = SharedState('users.pickle')
-    print('Enter the username:')
-    name = sys.stdin.readline()[:-1].encode()
     print('Enter the pin:')
     pin = sys.stdin.readline()[:-1].encode()
     userid = db.new(pin)
