@@ -32,6 +32,9 @@ def main():
     ctx = SSLContext(PROTOCOL_TLSv1_2)
     ctx.load_verify_locations('cert.pem')
 
+    ok = 'ok'
+    err = 'err'
+
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
             # connect
