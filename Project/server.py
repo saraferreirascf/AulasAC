@@ -5,12 +5,13 @@ import socket
 import pickle
 
 from pathlib import Path
-from baseconv import base56
 from threading import Thread, Lock
 from ssl import SSLContext, PROTOCOL_TLSv1_2
 
 from Crypto.Hash import BLAKE2b
 from Crypto.Random import get_random_bytes
+
+from generate_card_number import number_generator
 
 class SharedState(object):
     def __init__(self, load):
@@ -26,26 +27,27 @@ class SharedState(object):
             data = pickle.dumps(self.data)
         self.path.write_bytes(data)
 
-    def new(self, user, pin):
+    def new(self, pin):
         salt = generate_pin_salt()
-        userid = generate_user_id(user, salt)
-        pinhash = hash_pin(pin, salt)
+        userid = generate_user_id()
+        pin_salt = generate_pin_salt()
+        pinhash = hash_pin(hash_pin(pin, pin_salt), salt)
         shared_secret = pyotp.random_base32()
         totp = pyotp.TOTP(shared_secret)
         url = totp.provisioning_uri('banco@xp.to', issuer_name='Banco XPTO')
         qrcode.make(url).show()
         with self.lock:
-            self.data[userid] = (salt, pinhash, shared_secret)
+            self.data[userid] = (salt, pinhash, shared_secret, pin_salt)
         return userid
 
     def check_pin(self, userid, pin):
         with self.lock:
-            salt, pinhash, _ = self.data[userid]
+            salt, pinhash, _, _ = self.data[userid]
         return hash_equal(pinhash, hash_pin(pin, salt))
 
     def check_2fa(self, userid, token):
         with self.lock:
-            _, _, shared_secret = self.data[userid]
+            _, _, shared_secret, _ = self.data[userid]
         return pyotp.TOTP(shared_secret).verify(token)
 
 class SockHandler(Thread):
@@ -114,13 +116,8 @@ def hash_pin(pin, salt):
 def generate_pin_salt():
     return get_random_bytes(512)
 
-def generate_user_id(name, salt):
-    state = BLAKE2b.new()
-    state.update(name)
-    state.update(salt)
-    digest = state.digest()
-    num = int.from_bytes(digest, 'little')
-    return base56.encode(num).encode()
+def generate_user_id():
+    return number_generator()
 
 def main_new_user():
     db = SharedState('users.pickle')
@@ -128,7 +125,7 @@ def main_new_user():
     name = sys.stdin.readline()[:-1].encode()
     print('Enter the pin:')
     pin = sys.stdin.readline()[:-1].encode()
-    userid = db.new(name, pin)
+    userid = db.new(pin)
     print(f'Generated user id: {str(userid, "utf8")}')
     db.save()
 
@@ -153,7 +150,7 @@ def main():
                 s = ctx.wrap_socket(s, server_side=True)
                 SockHandler(s, addr, db).start()
             except KeyboardInterrupt:
-                print('*Windows shutdown jingle*')
+                print('\n*Windows shutdown jingle*')
                 break
 
 if __name__ == '__main__':

@@ -2,9 +2,20 @@ import sys
 import socket
 import pickle
 
+from pathlib import Path
+from Crypto.Hash import BLAKE2b
 from ssl import SSLContext, PROTOCOL_TLSv1_2
 
+def hash_pin(pin, salt):
+    state = BLAKE2b.new()
+    state.update(pin)
+    state.update(salt)
+    return state.digest()
+
 def main():
+    # load db
+    db = pickle.loads(Path('users.pickle').read_bytes())
+
     # read user id
     print('Enter the user id:')
     userid = sys.stdin.readline()[:-1].encode()
@@ -13,6 +24,11 @@ def main():
     print('Enter the pin:')
     pin = sys.stdin.readline()[:-1].encode()
 
+    # fetch secret
+    _, _, _, pin_salt = db[userid]
+    pin = hash_pin(pin, pin_salt)
+
+    # start server
     ctx = SSLContext(PROTOCOL_TLSv1_2)
     ctx.load_verify_locations('cert.pem')
 
