@@ -150,7 +150,7 @@ def main():
     ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as listener:
-        listener.bind(('127.0.0.1', 2500))
+        listener.bind(('127.0.0.1', 1500))
         listener.listen(8)
 
         db = SharedState('users.pickle')

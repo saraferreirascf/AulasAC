@@ -38,7 +38,7 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
             # connect
-            c.connect(('localhost', 2500))
+            c.connect(('localhost', 1500))
 
             # send user id and pin
             msg = pickle.dumps(dict(userid=userid, pin=pin))
@@ -64,7 +64,7 @@ def main():
                 print(msg[err])
                 return
 
-            print('Autheticated as: {str(userid, "utf8")}')
+            print(f'Autheticated as: {str(userid, "utf8")}')
 
 if __name__ == '__main__':
     main()
