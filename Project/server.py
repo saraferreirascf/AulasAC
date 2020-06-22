@@ -140,23 +140,21 @@ def main():
     ctx = SSLContext(PROTOCOL_TLSv1_2)
     ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
-    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-    listener.bind(('', 2500))
-    listener.listen(8)
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as listener:
+        listener.bind(('127.0.0.1', 2500))
+        listener.listen(8)
 
-    db = SharedState('users.pickle')
+        db = SharedState('users.pickle')
 
-    while True:
-        try:
-            s, addr = listener.accept()
-            print(f'{addr} : connected')
-            s = ctx.wrap_socket(s, server_side=True)
-            SockHandler(s, addr, db).start()
-        except KeyboardInterrupt:
-            print('*Windows shutdown jingle*')
-            break
-        finally:
-            listener.close()
+        while True:
+            try:
+                s, addr = listener.accept()
+                print(f'{addr} : connected')
+                s = ctx.wrap_socket(s, server_side=True)
+                SockHandler(s, addr, db).start()
+            except KeyboardInterrupt:
+                print('*Windows shutdown jingle*')
+                break
 
 if __name__ == '__main__':
     main()
