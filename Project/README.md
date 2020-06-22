@@ -1,7 +1,11 @@
 # Servidor
 
-    $ python app.py Server
+    $ python server.py
 
 # Cliente
 
-    $ python app.py Client
+    # Primeiro geramos uma identidade nova.
+    $ python server.py gen
+
+    # Depois podemos correr o cliente normalmente.
+    $ python client.py
