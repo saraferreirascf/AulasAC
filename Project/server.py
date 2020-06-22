@@ -1,85 +1,162 @@
-import socket
-import threading
 import sys
-import hashlib
-import hmac
-import json
+import pyotp
+import socket
+import pickle
 
-from contextlib import closing
-from Crypto.Util import Counter
-from Crypto.Cipher import AES
+from pathlib import Path
+from baseconv import base56
+from threading import Thread, Lock
+from ssl import SSLContext, PROTOCOL_TLSv1_2
 
-HOST = '127.0.0.1'  #localhost
-PORT = 45676 #non-privileged ports are > 1023
-KEY = b"very secret key"
-K1 = hashlib.sha256(KEY+b'1').digest()[:16]
-K2 = hashlib.sha256(KEY+b'2').digest()[:16]
+from Crypto.Hash import BLAKE2b
+from Crypto.Random import get_random_bytes
 
-class ServerThread(threading.Thread):
-    def __init__(self,crypto,c,id):
+class SharedState(object):
+    def __init__(self, load):
+        self.path = Path(load)
+        self.lock = Lock()
+        try:
+            self.data = pickle.loads(self.path.read_bytes())
+        except FileNotFoundError:
+            self.data = {}
+
+    def save(self):
+        with self.lock:
+            data = pickle.dumps(self.data)
+        self.path.write_bytes(data)
+
+    def new(self, user, pin):
+        salt = generate_pin_salt()
+        userid = generate_user_id(user, salt)
+        pinhash = hash_pin(pin, salt)
+        with self.lock:
+            self.data[userid] = (salt, pinhash)
+        return userid
+
+    def validate(self, userid, pin):
+        with self.lock:
+            salt, pinhash = self.data[userid]
+        return hash_equal(pinhash, hash_pin(pin, salt))
+
+class SockHandler(Thread):
+    def __init__(self, s, addr, state):
         super().__init__()
-        self.c = c
-        self.id = id
-        self.crypto = crypto
-        self.seq = 0
+        self.s = s
+        self.addr = addr
+        self.state = state
 
     def run(self):
-        with closing(self.c) as c:
-            while True:
-                msg = c.recv(1024) #pin
-                if msg:
-                    try:
-                        plaintext = self.crypto.dec(msg, self.seq)
-                        self.seq = (self.seq + 1) & 0xffffffffffffffff
-                        sys.stdout.buffer.write(b'[ ')
-                        sys.stdout.buffer.write(bytes(str(self.id), encoding='utf8'))
-                        sys.stdout.buffer.write(b' ]: ')
-                        sys.stdout.buffer.write(b' PIN inserted: ')
-                        sys.stdout.buffer.write(plaintext) #verificar PIN
-                    except ValueError:
-                        sys.stdout.buffer.write(b'[ ')
-                        sys.stdout.buffer.write(bytes(str(self.id), encoding='utf8'))
-                        sys.stdout.buffer.write(b' (error) ]: invalid mac')
-                    finally:
-                        sys.stdout.buffer.write(b'\n')
-                        sys.stdout.buffer.flush()
-                else:
-                    print("=[",self.id,"]=", "Disconnected")
-                    break
+        with self.s as c:
+            # initial payload contains user id
+            # and the user's pin code
+            msg = pickle.loads(c.recv(1024))
 
-class Server(object):
-    def deserialize(self, x):
-        return json.loads(x.decode('utf8'))
+            # retrieve user id
+            userid = msg.get('userid')
+            if not userid:
+                print(f'{self.addr} : no user id')
+                print(f'{self.addr} : disconnected')
+                return
 
-    def run(self):
-        order_number=0
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((HOST, PORT))
-            print('Server started!')
-            print('Waiting for clients...')
-            s.listen()
-            while True:
-                try:
-                    c, addr = s.accept()  # Establish connection with client.
-                    print("[",order_number,"]", "Connected")
-                    thr = ServerThread(self, c, order_number)
-                    thr.start()
-                    order_number+=1
-                except KeyboardInterrupt:
-                    print("Shutting down server")
-                    s.close()
-                    break
+            # retrieve pin
+            pin = msg.get('pin')
+            if not pin:
+                print(f'{self.addr} : no pin')
+                print(f'{self.addr} : disconnected')
+                return
 
-class SafeServer(Server):
-    def unpad(self, p):
-        return p[:-p[-1]]
+            # validate pin
+            if not self.state.validate(userid, pin):
+                print(f'{self.addr} : invalid pin: {pin}: for user: {userid}')
+                print(f'{self.addr} : disconnected')
+                return
 
-    def dec(self, p, seq):
-        p = self.deserialize(p)
-        seq = seq.to_bytes(8, 'big')
-        mac = hmac.new(K2, p['cryptogram'].encode()+seq, hashlib.sha256).hexdigest()
-        if not hmac.compare_digest(p['mac'], mac):
-            raise ValueError('invalid mac')
-        ctr_d = Counter.new(64, prefix=bytes.fromhex(p['iv']))
-        ciph = AES.new(K1, AES.MODE_CTR, counter=ctr_d)
-        return self.unpad(ciph.decrypt(bytes.fromhex(p['cryptogram'])))
+            # generate otp for 2fa
+            shared_secret = pyotp.random_base32()
+            totp = pyotp.TOTP(shared_secret)
+
+            # send 2fa shared secret
+            msg = pickle.dumps(dict(secret=shared_secret))
+            c.sendall(msg)
+
+            # receive token
+            msg = pickle.loads(c.recv(1024))
+            token = msg.get('token')
+            if not token:
+                print(f'{self.addr} : no token')
+                print(f'{self.addr} : disconnected')
+                return
+
+            # verify token
+            if not totp.verify(token):
+                print(f'{self.addr} : token expired')
+                print(f'{self.addr} : disconnected')
+                return
+
+            # we're good to go!
+            print(f'{self.addr} : authenticated')
+            print(f'{self.addr} : disconnected')
+
+def hash_equal(h1, h2):
+    result = 0
+    for i in range(len(h1)):
+        result |= h1[i] ^ h2[i]
+    return result == 0
+
+def hash_pin(pin, salt):
+    state = BLAKE2b.new()
+    state.update(pin)
+    state.update(salt)
+    return state.digest()
+
+def generate_pin_salt():
+    return get_random_bytes(512)
+
+def generate_user_id(name, salt):
+    state = BLAKE2b.new()
+    state.update(name)
+    state.update(salt)
+    digest = state.digest()
+    num = int.from_bytes(digest, 'little')
+    return base56.encode(num).encode()
+
+def main_new_user():
+    db = SharedState('users.pickle')
+    print('Enter the username:')
+    name = sys.stdin.readline()[:-1].encode()
+    print('Enter the pin:')
+    pin = sys.stdin.readline()[:-1].encode()
+    userid = db.new(name, pin)
+    print(f'Generated user id: {str(userid, "utf8")}')
+    db.save()
+
+def main():
+    if len(sys.argv) > 1 and sys.argv[1] == 'gen':
+        main_new_user()
+        return
+
+    ctx = SSLContext(PROTOCOL_TLSv1_2)
+    ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
+
+    listener = socket.socket()
+    listener.bind(('', 1500))
+    listener.listen(8)
+
+    db = SharedState('users.pickle')
+
+    while True:
+        try:
+            s, addr = listener.accept()
+            print(f'{addr} : connected')
+            s = ctx.wrap_socket(s, server_side=True)
+            SockHandler(s, addr, db).start()
+        except OSError:
+            continue
+        except KeyboardInterrupt:
+            print('*Windows shutdown jingle*')
+            break
+        finally:
+            listener.close()
+
+if __name__ == '__main__':
+    main()
