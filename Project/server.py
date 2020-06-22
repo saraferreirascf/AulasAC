@@ -124,7 +124,7 @@ def main_new_user():
     print('Enter the pin:')
     pin = sys.stdin.readline()[:-1].encode()
     userid = db.new(pin)
-    print(f'Generated user id: {str(userid, "utf8")}')
+    print(f'Generated user id: {userid}')
     db.save()
 
 def main():
