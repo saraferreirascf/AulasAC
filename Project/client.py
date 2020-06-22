@@ -64,5 +64,7 @@ def main():
                 print(msg[err])
                 return
 
+            print('Autheticated as: {str(userid, "utf8")}')
+
 if __name__ == '__main__':
     main()
