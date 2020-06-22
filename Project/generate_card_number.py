@@ -58,7 +58,7 @@ def completed_number(prefix, length):
 
     # Calculate check digit
 
-    checkdigit = ((sum / 10 + 1) * 10 - sum) % 10
+    checkdigit = ((sum // 10 + 1) * 10 - sum) % 10
 
     ccnumber.append(str(checkdigit))
 
