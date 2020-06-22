@@ -103,7 +103,7 @@ class SockHandler(Thread):
 
             # verify token
             if not self.state.check_2fa(userid, token):
-                msg = pickle.dumps(dict(ok=False, err='no token'))
+                msg = pickle.dumps(dict(ok=False, err='invalid token'))
                 c.sendall(msg)
                 print(f'{self.addr} : token expired')
                 print(f'{self.addr} : disconnected')
