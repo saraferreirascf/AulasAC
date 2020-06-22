@@ -93,4 +93,4 @@ def output(title, numbers):
 
 def number_generator():
     visa16 = credit_card_number(generator, visaPrefixList, 16, 1)
-    return int(visa16)
+    return int(visa16[0])
