@@ -19,7 +19,7 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
             # connect
-            c.connect(('localhost', 1500))
+            c.connect(('localhost', 2500))
 
             # send user id and pin
             msg = pickle.dumps(dict(userid=userid, pin=pin))

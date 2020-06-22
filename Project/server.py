@@ -141,7 +141,7 @@ def main():
     ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
     listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
-    listener.bind(('', 1500))
+    listener.bind(('', 2500))
     listener.listen(8)
 
     db = SharedState('users.pickle')
@@ -152,8 +152,6 @@ def main():
             print(f'{addr} : connected')
             s = ctx.wrap_socket(s, server_side=True)
             SockHandler(s, addr, db).start()
-        except OSError:
-            continue
         except KeyboardInterrupt:
             print('*Windows shutdown jingle*')
             break
