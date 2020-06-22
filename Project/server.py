@@ -1,5 +1,6 @@
 import sys
 import pyotp
+import qrcode
 import socket
 import pickle
 
@@ -29,14 +30,23 @@ class SharedState(object):
         salt = generate_pin_salt()
         userid = generate_user_id(user, salt)
         pinhash = hash_pin(pin, salt)
+        shared_secret = pyotp.random_base32()
+        totp = pyotp.TOTP(shared_secret)
+        url = totp.provisioning_uri('banco@xp.to', issuer_name='Banco XPTO')
+        qrcode.make(url).show()
         with self.lock:
-            self.data[userid] = (salt, pinhash)
+            self.data[userid] = (salt, pinhash, shared_secret)
         return userid
 
-    def validate(self, userid, pin):
+    def check_pin(self, userid, pin):
         with self.lock:
-            salt, pinhash = self.data[userid]
+            salt, pinhash, _ = self.data[userid]
         return hash_equal(pinhash, hash_pin(pin, salt))
+
+    def check_2fa(self, userid, token):
+        with self.lock:
+            _, _, shared_secret = self.data[userid]
+        return pyotp.TOTP(shared_secret).verify(token)
 
 class SockHandler(Thread):
     def __init__(self, s, addr, state):
@@ -66,18 +76,10 @@ class SockHandler(Thread):
                 return
 
             # validate pin
-            if not self.state.validate(userid, pin):
+            if not self.state.check_pin(userid, pin):
                 print(f'{self.addr} : invalid pin: {pin}: for user: {userid}')
                 print(f'{self.addr} : disconnected')
                 return
-
-            # generate otp for 2fa
-            shared_secret = pyotp.random_base32()
-            totp = pyotp.TOTP(shared_secret)
-
-            # send 2fa shared secret
-            msg = pickle.dumps(dict(secret=shared_secret))
-            c.sendall(msg)
 
             # receive token
             msg = pickle.loads(c.recv(1024))
@@ -88,7 +90,7 @@ class SockHandler(Thread):
                 return
 
             # verify token
-            if not totp.verify(token):
+            if not self.state.check_2fa(userid, token):
                 print(f'{self.addr} : token expired')
                 print(f'{self.addr} : disconnected')
                 return
@@ -138,7 +140,7 @@ def main():
     ctx = SSLContext(PROTOCOL_TLSv1_2)
     ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
-    listener = socket.socket()
+    listener = socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0)
     listener.bind(('', 1500))
     listener.listen(8)
 

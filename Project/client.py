@@ -1,6 +1,4 @@
 import sys
-import pyotp
-import qrcode
 import socket
 import pickle
 
@@ -26,18 +24,6 @@ def main():
             # send user id and pin
             msg = pickle.dumps(dict(userid=userid, pin=pin))
             c.sendall(msg)
-
-            # receive otp shared secret
-            msg = pickle.loads(c.recv(1024))
-            shared_secret = msg.get('secret')
-            if not shared_secret:
-                print('failed to get shared secret')
-                return
-
-            # show 2fa qr code
-            totp = pyotp.TOTP(shared_secret)
-            url = totp.provisioning_uri('banco@xp.to', issuer_name='Banco XPTO')
-            qrcode.make(url).show()
 
             # read 2fa token
             print('Enter the 2fa token:')
