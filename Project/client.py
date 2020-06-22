@@ -15,11 +15,11 @@ def hash_pin(pin, salt):
 def splash_screen():
     print()
     print()
-    print("/***************************\\")
-    print("|            ATM            |")
-    print("|           a.k.a.          |")
-    print("|       All The Money       |")
-    print("\\***************************/")
+    print("  /***************************\\")
+    print("  |            ATM            |")
+    print("  |           a.k.a.          |")
+    print("  |       All The Money       |")
+    print("  \\***************************/")
     print()
     print()
 
@@ -33,7 +33,7 @@ def main(port=None):
     userid = sys.stdin.readline()[:-1].encode()
 
     # read card pin
-    print('Good, good... Now punch in the pin:')
+    print('\nGood, good... Now punch in the pin:')
     pin = sys.stdin.readline()[:-1].encode()
 
     # fetch secret
@@ -49,10 +49,12 @@ def main(port=None):
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
-            print('Dialing backend...')
+            print('\nDialing backend...')
 
             # connect
             c.connect(('localhost', port))
+
+            print('...All good!\n')
 
             # send user id and pin
             msg = pickle.dumps(dict(userid=userid, pin=pin))
@@ -78,5 +80,5 @@ def main(port=None):
                 print(f'Error: {msg[err]}')
                 return
 
-            print(f'Autheticated as: {str(userid, "utf8")}')
+            print(f'\n\nAutheticated as: {str(userid, "utf8")}')
             print('Alright, time to order some Uber Eats(tm)!')

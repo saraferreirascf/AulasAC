@@ -133,12 +133,25 @@ def generate_pin_salt():
 def generate_user_id():
     return number_generator()
 
+def register_splash_screen():
+    print()
+    print()
+    print("  /***************************\\")
+    print("  |            ATM            |")
+    print("  |           a.k.a.          |")
+    print("  |       All The Money       |")
+    print("  \\***************************/")
+    print()
+    print()
+
 def register(port=None):
+    register_splash_screen()
     db = SharedState('users.pickle')
-    print('Enter the pin:')
+    print('So you want a bank account to order some Uber Eats(tm), eh?')
+    print('Enter your desired pin:')
     pin = sys.stdin.readline()[:-1].encode()
     userid = db.new(pin)
-    print(f'Generated user id: {str(userid, "utf8")}')
+    print(f'\n\nGenerated new user with card id: {str(userid, "utf8")}')
     db.save()
 
 def main(port=None):
