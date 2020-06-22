@@ -133,7 +133,7 @@ def generate_pin_salt():
 def generate_user_id():
     return number_generator()
 
-def main_new_user():
+def register(port=None):
     db = SharedState('users.pickle')
     print('Enter the pin:')
     pin = sys.stdin.readline()[:-1].encode()
@@ -141,16 +141,12 @@ def main_new_user():
     print(f'Generated user id: {str(userid, "utf8")}')
     db.save()
 
-def main():
-    if len(sys.argv) > 1 and sys.argv[1] == 'gen':
-        main_new_user()
-        return
-
+def main(port=None):
     ctx = SSLContext(PROTOCOL_TLSv1_2)
     ctx.load_cert_chain(certfile='cert.pem', keyfile='key.pem')
 
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as listener:
-        listener.bind(('127.0.0.1', 2500))
+        listener.bind(('127.0.0.1', port))
         listener.listen(8)
 
         db = SharedState('users.pickle')
@@ -164,6 +160,3 @@ def main():
             except KeyboardInterrupt:
                 print('\n*Windows shutdown jingle*')
                 break
-
-if __name__ == '__main__':
-    main()

@@ -12,7 +12,7 @@ def hash_pin(pin, salt):
     state.update(salt)
     return state.digest()
 
-def main():
+def main(port=None):
     # load db
     db = pickle.loads(Path('users.pickle').read_bytes())
 
@@ -38,7 +38,7 @@ def main():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM, 0) as sock:
         with ctx.wrap_socket(sock, server_hostname='localhost') as c:
             # connect
-            c.connect(('localhost', 2500))
+            c.connect(('localhost', port))
 
             # send user id and pin
             msg = pickle.dumps(dict(userid=userid, pin=pin))
@@ -65,6 +65,3 @@ def main():
                 return
 
             print(f'Autheticated as: {str(userid, "utf8")}')
-
-if __name__ == '__main__':
-    main()
