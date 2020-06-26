@@ -14,14 +14,14 @@ For demo purposes we have created a function to create a new bank account.
 
 First we need to run the server, in order to communicate with the ATM. The server here will work as the digital bank servers.
 
-    $ python app.py server
+    $ python app.py Server
     
 If it is needed to create a new account just run:
     
-    $ python app.py server gen
+    $ python app.py Register
 
 ### Client
 
 The Client here will act as an ATM. 
 
-    $ python app.py client
+    $ python app.py Client
